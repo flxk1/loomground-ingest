@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "name": "loomground-ingest",
+  "version": "0.1.1",
+  "license": "Apache-2.0",
+  "description": "Drive the network-free Loomground ingest plane: dispatch a post-acquisition artifact to the registered ingester, lower it to a dimensioned subgraph with provenance and quarantine semantics, dry-run by default, and write only through the host-injected, versioned Versum sink.",
+  "author": {
+    "name": "Loomground Contributors"
+  },
+  "keywords": [
+    "loomground",
+    "ingest",
+    "versum",
+    "mental-model",
+    "subgraph",
+    "provenance"
+  ],
+  "skills": [
+    {
+      "name": "loomground-ingest",
+      "path": "skills/loomground-ingest",
+      "provides": [
+        "knowledge.ingest"
+      ]
+    }
+  ],
+  "capabilities": {
+    "knowledge.ingest": {
+      "mode": "read-write",
+      "humanConfirmation": true
+    }
+  },
+  "runtime": {
+    "python": ">=3.10",
+    "network": false,
+    "config": [],
+    "requires": [
+      "loomground-ingest"
+    ]
+  },
+  "adapters": {
+    "claude": {
+      "marketplaceSource": {
+        "source": "url",
+        "url": "https://github.com/flxk1/loomground-ingest.git"
+      }
+    },
+    "codex": {
+      "interface": {
+        "displayName": "Loomground Ingest",
+        "shortDescription": "Multimodal artifacts into dimensioned versum subgraphs",
+        "longDescription": "The network-free ingest plane of the Loomground designer workflow: receive host-acquired artifact content, dispatch to the registered ingester, and lower it to a provenance-stamped dimensioned subgraph headed for the versum mental model - dry-run by default, confirmation required and enforced by the host (not this library), quarantine respected.",
+        "developerName": "Loomground Contributors",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Grammar-based dispatch",
+          "Dimensioned subgraphs",
+          "Dry-run reports",
+          "Quarantine semantics"
+        ],
+        "defaultPrompt": [
+          "Ingest this manual as a tool mental model.",
+          "Dry-run the ingest on this policy text.",
+          "What would this artifact add to versum?"
+        ]
+      }
+    },
+    "generic": {}
+  }
+}
