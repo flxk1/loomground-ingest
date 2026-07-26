@@ -1,0 +1,16 @@
+{
+  "name": "loomground-ingest",
+  "version": "0.1.1",
+  "description": "Drive the network-free Loomground ingest plane: dispatch a post-acquisition artifact to the registered ingester, lower it to a dimensioned subgraph with provenance and quarantine semantics, dry-run by default, and write only through the host-injected, versioned Versum sink.",
+  "author": {
+    "name": "Loomground Contributors"
+  },
+  "keywords": [
+    "loomground",
+    "ingest",
+    "versum",
+    "mental-model",
+    "subgraph",
+    "provenance"
+  ]
+}

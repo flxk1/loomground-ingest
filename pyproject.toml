@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 flxk1
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "loomground-ingest"
+version = "0.1.1"
+description = "The ingest plane of the Loomground workflow: multimodal input → a dimensioned subgraph in Versum (5D knowledge, nD governance)."
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "LICENSES/Apache-2.0.txt", "NOTICE"]
+authors = [{ name = "Loomground Contributors" }]
+# The built-in reference ingester consumes the deontic language pack, the same
+# way solver's reference adapter consumes governance. Host-specific ingesters
+# still live in their hosts.
+dependencies = ["loomground-deontic>=0.1,<0.2"]
+
+[project.urls]
+Homepage = "https://github.com/flxk1/loomground-ingest"
+Source = "https://github.com/flxk1/loomground-ingest"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["loomground_ingest*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

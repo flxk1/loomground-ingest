@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 flxk1
+"""loomground-ingest — the ingest plane framework.
+
+Multimodal input → a dimensioned subgraph in Versum: extract → dispatch
+(grammar, else best guess) → ingest → write. This package owns the plane's
+currency and stages; a host registers ingesters (each lowering its input to a
+``Subgraph`` tagged with its Versum dimension — 5D knowledge, nD governance)
+and supplies the writer and, for artifact input, the extractor.
+"""
+from .pipeline import ingest_artifact, ingest_text
+from .registry import IngesterRegistry
+from .types import (
+    ALLOWED_FACETS,
+    FEDERATION_EDGE_DIMENSIONS,
+    Ctx,
+    Ingester,
+    Predicate,
+    Subgraph,
+    validate_subgraph,
+)
+from .writer import (
+    VERSUM_RECEIPT_CONTRACT,
+    VERSUM_SINK_CONTRACT,
+    CollectingWriter,
+    DimensionedSubgraphSink,
+    VersumWriter,
+    Writer,
+    versum_writer,
+)
+from .deontic import DeonticIngester
+
+__all__ = [
+    "ingest_text", "ingest_artifact", "IngesterRegistry",
+    "Ingester", "Subgraph", "Predicate", "Ctx",
+    "Writer", "CollectingWriter", "DimensionedSubgraphSink", "VersumWriter",
+    "versum_writer", "VERSUM_SINK_CONTRACT", "VERSUM_RECEIPT_CONTRACT",
+    "DeonticIngester", "validate_subgraph",
+    "ALLOWED_FACETS", "FEDERATION_EDGE_DIMENSIONS",
+]
