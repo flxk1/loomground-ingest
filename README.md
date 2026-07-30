@@ -18,8 +18,9 @@ multimodal input  →  [loomground-ingest]  →  versum (5D + nD)  ⟷  solver
 ```
 
 Ingest performs the *translation of functions*: it reads any input a tool
-declares itself through — a manual, a function list, images, docs, a live
-machine-readable surface — and writes the tool's mental model into **versum** as
+declares itself through — a manual, a function list, docs, a live
+machine-readable surface (image and audio extraction are host-supplied and
+still forthcoming) — and writes the tool's mental model into **versum** as
 Federation-5D relations (structural · causal · intentional · temporal ·
 relational) plus typed nD context, provenance-stamped. It invents nothing;
 missing context is recorded as incomplete, never as false.
@@ -29,9 +30,10 @@ Downstream, **solver** reasons over that model (genre, layout, tiers) and
 never reasons — it only builds the knowledge the other planes consume.
 
 The framework — the plane's currency and stages — is built and
-tested (`v0.1.1`); see [docs/contract.md](docs/contract.md). Hosts contribute
-ingesters: rvnd's policy-text → nD governance ingester is the first, built and
-living in rvnd. The Versum consumer adapter is an injected, versioned sink
+tested (`v0.1.1`); see [docs/contract.md](docs/contract.md). This package ships one
+built-in reference ingester (`deontic`, normative text → nD); hosts contribute the
+rest — rvnd's policy-text → nD governance ingester is the first host-contributed one,
+built and living in rvnd. The Versum consumer adapter is an injected, versioned sink
 boundary; Versum remains the owner of persistence.
 ## License
 
