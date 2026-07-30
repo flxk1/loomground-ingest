@@ -19,7 +19,7 @@ import json
 import re
 from typing import Any, Mapping, Protocol, runtime_checkable
 
-from .types import Subgraph, validate_subgraph
+from .types import Subgraph, node_identity, validate_subgraph
 
 VERSUM_SINK_CONTRACT = "loomground.versum.dimensioned-subgraph/v1"
 VERSUM_RECEIPT_CONTRACT = "loomground.versum.dimensioned-subgraph-receipt/v1"
@@ -97,9 +97,7 @@ class VersumWriter:
                 "dimension": subgraph.dimension,
             }
 
-        node_ids = {
-            node.get("node_id", node.get("id")) for node in subgraph.nodes
-        }
+        node_ids = {node_identity(node) for node in subgraph.nodes}
         evidence_ids = [item.get("evidence_id") for item in self._evidence]
         relations = []
         for index, edge in enumerate(subgraph.edges):
@@ -161,7 +159,7 @@ class VersumWriter:
             "nd": deepcopy(self._nd),
             "nodes": [
                 {
-                    "node_id": node.get("node_id", node.get("id")),
+                    "node_id": node_identity(node),
                     "node_type": node.get(
                         "node_type",
                         node.get("kind", node.get("class", node.get("type", "node"))),
