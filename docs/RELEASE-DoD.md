@@ -6,7 +6,7 @@ A release is done only when the bare command below prints `RELEASE GATE PASS`.
 Passing unit tests alone is necessary but insufficient.
 
 ```sh
-python -m tests.release_gate
+python -m tests.release_gate --bare
 ```
 
 ## R1 — Public contract
