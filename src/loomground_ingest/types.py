@@ -56,6 +56,20 @@ class Subgraph:
         return "complete"
 
 
+def node_identity(node: Any) -> Any:
+    """The single identity a node is keyed by across the plane.
+
+    ``validate_subgraph`` (dedup, dangling-edge resolution) and the writer
+    (emitted ``node_id``, edge-endpoint matching) both resolve identity through
+    this one helper, so a node's dedup key and its emit/endpoint key can never
+    diverge. ``node_id`` takes precedence over ``id`` to match the envelope the
+    writer emits. Non-dict nodes have no identity (``None``).
+    """
+    if not isinstance(node, dict):
+        return None
+    return node.get("node_id", node.get("id"))
+
+
 def validate_subgraph(subgraph: Subgraph) -> list[str]:
     """Return contract violations without mutating ``subgraph``.
 
@@ -69,11 +83,14 @@ def validate_subgraph(subgraph: Subgraph) -> list[str]:
     if not isinstance(subgraph.provenance, dict) or not subgraph.provenance:
         errors.append("missing provenance")
 
-    node_ids: list[Any] = [
-        node.get("id") if isinstance(node, dict) else None
+    node_ids: list[Any] = [node_identity(node) for node in subgraph.nodes]
+    # The presence check stays keyed on ``id`` so node_id-only nodes remain
+    # rejected; dedup and edge resolution below use the shared identity.
+    if any(
+        not isinstance(node, dict)
+        or not isinstance(node.get("id"), (str, int))
         for node in subgraph.nodes
-    ]
-    if any(not isinstance(node_id, (str, int)) for node_id in node_ids):
+    ):
         errors.append("node missing id")
     if len(node_ids) != len(set(node_ids)):
         errors.append("duplicate node id")

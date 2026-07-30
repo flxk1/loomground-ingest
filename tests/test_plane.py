@@ -10,12 +10,14 @@ from __future__ import annotations
 import pytest
 
 from loomground_ingest import (
+    DEFAULT_MAX_INPUT_CHARS,
     CollectingWriter,
     DeonticIngester,
     IngesterRegistry,
     Subgraph,
     ingest_artifact,
     ingest_text,
+    node_identity,
     validate_subgraph,
     versum_writer,
 )
@@ -237,6 +239,83 @@ def test_deontic_node_ids_are_stable_and_source_namespaced():
     assert first.nodes[0]["id"] == again.nodes[0]["id"]
     assert first.nodes[0]["id"] != other.nodes[0]["id"]
     assert first.edges[0]["norm"] == first.nodes[0]["id"]
+
+
+def test_oversized_input_is_refused_before_any_processing():
+    class ExplodingIngester:
+        id = "exploding"
+
+        def grammar(self):
+            return None
+
+        def ingest(self, text, ctx):
+            raise AssertionError("oversized input must not reach an ingester")
+
+    class SpyWriter:
+        calls = 0
+
+        def write(self, subgraph):
+            self.calls += 1
+            raise AssertionError("oversized input must not reach the writer")
+
+    reg = IngesterRegistry()
+    reg.register(ExplodingIngester())
+    writer = SpyWriter()
+    result = ingest_text("x" * (DEFAULT_MAX_INPUT_CHARS + 1),
+                         registry=reg, writer=writer)
+    assert result["ok"] is False and result["reason"] == "input_too_large"
+    assert result["limit"] == DEFAULT_MAX_INPUT_CHARS
+    assert result["length"] == DEFAULT_MAX_INPUT_CHARS + 1
+    assert writer.calls == 0
+
+
+def test_input_bound_is_configurable_and_disablable():
+    reg = IngesterRegistry()
+    reg.register(_FallbackIngester())
+
+    tight = ingest_text("abcdef", registry=reg, writer=CollectingWriter(),
+                        max_input_chars=3)
+    assert tight == {"ok": False, "reason": "input_too_large",
+                     "limit": 3, "length": 6}
+
+    # At the limit is accepted; None disables the guard entirely.
+    ok = ingest_text("abc", registry=reg, writer=CollectingWriter(),
+                     max_input_chars=3)
+    assert ok["ok"] is True
+    huge = ingest_text("x" * (DEFAULT_MAX_INPUT_CHARS + 1), registry=reg,
+                       writer=CollectingWriter(), max_input_chars=None)
+    assert huge["ok"] is True
+
+
+def test_artifact_ingest_enforces_input_bound():
+    reg = IngesterRegistry()
+    reg.register(_FallbackIngester())
+    result = ingest_artifact({"path": "big.pdf"},
+                             extract=lambda a: "y" * 20,
+                             registry=reg, writer=CollectingWriter(),
+                             max_input_chars=5)
+    assert result["ok"] is False and result["reason"] == "input_too_large"
+
+
+def test_node_identity_prefers_node_id_and_is_shared_across_plane():
+    assert node_identity({"id": "a"}) == "a"
+    assert node_identity({"node_id": "b"}) == "b"
+    # A node carrying both is keyed on node_id — the value the writer emits.
+    assert node_identity({"id": "a", "node_id": "b"}) == "b"
+    assert node_identity("not-a-dict") is None
+
+
+def test_validation_dedup_key_matches_writer_emit_key():
+    # Two nodes whose ``id`` differs but ``node_id`` collides: validation must
+    # catch the same duplicate the writer would emit, because both resolve
+    # identity through node_identity.
+    graph = Subgraph(
+        dimension="nD",
+        nodes=[{"id": "a1", "node_id": "shared"},
+               {"id": "a2", "node_id": "shared"}],
+        provenance={"source": "x"},
+    )
+    assert "duplicate node id" in validate_subgraph(graph)
 
 
 def test_deontic_semicolon_does_not_leak_into_action():
