@@ -3,5 +3,5 @@
 # index-clean. Install this before `pip install .` so the range is already
 # satisfied and pip never needs an index for the sibling package.
 # Immutable release commit for loomground-deontic v0.1.1.
-loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@d8f2ccae223df1656011be9b10cfc1c201c2e730
+loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@fd103e422f09a9e9613b50268372bba58787e295
 pytest==9.1.1
