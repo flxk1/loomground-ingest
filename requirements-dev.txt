@@ -4,6 +4,11 @@
 # satisfied and pip never needs an index for the sibling package.
 # Immutable release commit for loomground-deontic (typed carry fields + cues).
 loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@e346601a5d09d53cee410e22973ff1ec52246338
+# Immutable release commits for the governance compiler's siblings: solver
+# supplies validate/parse/project/to_netlist, governance supplies the policy
+# grammar/vocabulary. Pinned to their public/main HEAD.
+loomground-solver @ git+https://github.com/flxk1/loomground-solver@8bfbf44850626acd0c4a9710b2b7aae1d2094032
+loomground-governance @ git+https://github.com/flxk1/loomground-governance@2f54cb4aaf3e13928c9a3221ba72122dd78ad184
 pytest==9.1.1
 # tomllib backport for Python < 3.11 (the release gate reads pyproject.toml).
 tomli==2.2.1 ; python_version < "3.11"
