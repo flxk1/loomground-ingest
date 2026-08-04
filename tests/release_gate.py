@@ -143,8 +143,14 @@ def main() -> None:
     graph = writer.written[0]
     assert validate_subgraph(graph) == []
     assertions += 1
-    assert len(graph.nodes) == len(graph.edges) == 2
-    assertions += 1
+    # 5D projection: each norm fans across the fixed dimensions (structural
+    # "concerns" + intentional "binds" + the operator affinity, plus a causal
+    # edge per condition/exception) — not one edge per norm.
+    assert len(graph.nodes) == 2
+    dims = {edge["dimension"] for edge in graph.edges}
+    assert {"structural", "causal", "intentional"} <= dims
+    assert len(graph.edges) == 8
+    assertions += 3
     assert graph.provenance["recognised"] == (
         graph.provenance["lowered"] + graph.provenance["rejected"]
     )

@@ -7,6 +7,7 @@ Run: python -m pytest -q
 """
 from __future__ import annotations
 
+import deontic
 import pytest
 
 from loomground_ingest import (
@@ -326,3 +327,198 @@ def test_deontic_semicolon_does_not_leak_into_action():
 
     assert graph.quarantined is False
     assert [node["action"] for node in graph.nodes] == ["notify", "disclose"]
+
+
+def test_deontic_captures_defined_terms_as_structural_nodes():
+    graph = DeonticIngester().ingest(
+        "For the purposes of this Regulation, 'personal data' means any "
+        "information relating to an identified natural person. "
+        "'Controller' shall mean the body which determines the purposes. "
+        "The Agency shall mean the European supervisory body.",
+        {"source_id": "gdpr"},
+    )
+
+    assert validate_subgraph(graph) == []
+    definitions = [n for n in graph.nodes if n["kind"] == "definition"]
+    assert [d["term"] for d in definitions] == [
+        "personal data", "Controller", "The Agency",
+    ]
+    assert definitions[0]["definition"] == (
+        "any information relating to an identified natural person"
+    )
+    assert graph.provenance["definitions"] == 3
+    # Every definition emits exactly one structural edge attributed to its node.
+    def_edges = [e for e in graph.edges if e["predicate"] == "defines"]
+    assert len(def_edges) == 3
+    assert all(e["dimension"] == "structural" for e in def_edges)
+    assert {e["norm"] for e in def_edges} == {d["id"] for d in definitions}
+    assert {e["object"] for e in def_edges} == {d["term"] for d in definitions}
+
+
+def test_deontic_definition_takes_precedence_over_shall_modal():
+    # "shall mean" must be read as a definition, not lowered as an obligation.
+    graph = DeonticIngester().ingest(
+        "'Controller' shall mean the responsible body.", {},
+    )
+
+    assert [n["kind"] for n in graph.nodes] == ["definition"]
+    assert graph.provenance["lowered"] == 0
+    assert graph.provenance["recognised"] == 0
+
+
+def test_deontic_definition_node_ids_are_stable_and_source_namespaced():
+    text = "'controller' means the body which determines the purposes."
+    first = DeonticIngester().ingest(text, {"source_id": "policy-a"})
+    again = DeonticIngester().ingest(text, {"source_id": "policy-a"})
+    other = DeonticIngester().ingest(text, {"source_id": "policy-b"})
+
+    assert first.nodes[0]["id"].startswith("definition:")
+    assert first.nodes[0]["id"] == again.nodes[0]["id"]
+    assert first.nodes[0]["id"] != other.nodes[0]["id"]
+
+
+def test_deontic_cross_references_link_norm_to_cited_provisions():
+    graph = DeonticIngester().ingest(
+        "The controller must notify the authority under Article 33(1) and "
+        "Annex II pursuant to Regulation (EU) 2016/679 and Directive 95/46/EC.",
+        {},
+    )
+
+    assert validate_subgraph(graph) == []
+    refs = [e for e in graph.edges
+            if e["predicate"] == "refers-to" and e["dimension"] == "relational"]
+    cited = {e["object"] for e in refs}
+    assert cited == {
+        "Article 33(1)", "Annex II",
+        "Regulation (EU) 2016/679", "Directive 95/46/EC",
+    }
+    norm_id = next(n["id"] for n in graph.nodes if n["kind"] == "norm")
+    assert all(e["norm"] == norm_id for e in refs)
+
+
+def test_deontic_cross_reference_ignores_bare_prose():
+    graph = DeonticIngester().ingest(
+        "The processor must consider the point of view of the data subject.",
+        {},
+    )
+
+    assert not [e for e in graph.edges if e["predicate"] == "refers-to"]
+
+
+def test_deontic_required_artifacts_are_structural_edges():
+    # AI Act Article 16 (c)/(d)/(e)/(g)/(h) style provider deliverables.
+    graph = DeonticIngester().ingest(
+        "The provider shall draw up an EU declaration of conformity and affix "
+        "the CE marking. The provider must keep the logs referred to in "
+        "Article 19 and maintain a quality management system.",
+        {"source_id": "ai-act-16"},
+    )
+
+    assert validate_subgraph(graph) == []
+    artifacts = [e for e in graph.edges
+                 if e["predicate"] == "requires-artifact"]
+    assert all(e["dimension"] == "structural" for e in artifacts)
+    assert {e["object"] for e in artifacts} == {
+        "EU declaration of conformity", "CE marking",
+        "logs", "quality management system",
+    }
+    # Every artifact edge is attributed to a real norm node.
+    norm_ids = {n["id"] for n in graph.nodes if n["kind"] == "norm"}
+    assert all(e["norm"] in norm_ids and e["subject"] in norm_ids
+               for e in artifacts)
+
+
+def test_deontic_authorisation_points_are_causal_edges():
+    graph = DeonticIngester().ingest(
+        "Placing the system on the market shall be subject to prior "
+        "authorisation. The competent authority shall decide within 30 days.",
+        {"source_id": "auth"},
+    )
+
+    assert validate_subgraph(graph) == []
+    gates = [e for e in graph.edges if e["predicate"] == "authorised-by"]
+    assert all(e["dimension"] == "causal" for e in gates)
+    assert {e["object"] for e in gates} == {
+        "subject to prior authorisation", "shall decide",
+    }
+    norm_ids = {n["id"] for n in graph.nodes if n["kind"] == "norm"}
+    assert all(e["norm"] in norm_ids for e in gates)
+
+
+def test_deontic_artifact_and_authorisation_ignore_bare_prose():
+    graph = DeonticIngester().ingest(
+        "The processor must consider the point of view of the data subject "
+        "and keep the customer informed of the outcome.",
+        {},
+    )
+
+    assert not [e for e in graph.edges
+                if e["predicate"] in ("requires-artifact", "authorised-by")]
+
+
+def _only_norm(graph):
+    return next(n for n in graph.nodes if n["kind"] == "norm")
+
+
+def test_deontic_deadline_populates_typed_field_on_node_and_formula():
+    # The deadline is read via the language's PUBLISHED deadline cues.
+    graph = DeonticIngester().ingest(
+        "The provider shall notify the authority within 30 days.", {},
+    )
+
+    assert validate_subgraph(graph) == []
+    norm = _only_norm(graph)
+    assert norm["deadline"] == "30 days"
+    assert norm["cross_references"] == []
+    assert norm["sanction"] == ""
+    # The same value round-trips onto the deontic formula the language builds.
+    formula = deontic.formula_from_fields(
+        norm["operator"], norm["bearer"], norm["action"],
+        deadline=norm["deadline"])
+    assert formula.deadline == "30 days"
+
+
+def test_deontic_cross_references_populate_typed_list_on_node_and_formula():
+    graph = DeonticIngester().ingest(
+        "The controller must delete the data in accordance with Article 17.",
+        {},
+    )
+
+    assert validate_subgraph(graph) == []
+    norm = _only_norm(graph)
+    assert norm["cross_references"] == ["Article 17"]
+    assert norm["deadline"] == ""
+    assert norm["sanction"] == ""
+    formula = deontic.formula_from_fields(
+        norm["operator"], norm["bearer"], norm["action"],
+        cross_references=norm["cross_references"])
+    assert formula.cross_references == ["Article 17"]
+
+
+def test_deontic_sanction_populates_typed_field_on_node_and_formula():
+    graph = DeonticIngester().ingest(
+        "A person who processes the data shall be liable to a fine of EUR 10000.",
+        {},
+    )
+
+    assert validate_subgraph(graph) == []
+    norm = _only_norm(graph)
+    assert norm["sanction"]
+    assert "fine" in norm["sanction"].lower()
+    assert norm["deadline"] == ""
+    assert norm["cross_references"] == []
+    formula = deontic.formula_from_fields(
+        norm["operator"], norm["bearer"], norm["action"],
+        sanction=norm["sanction"])
+    assert formula.sanction == norm["sanction"]
+
+
+def test_deontic_plain_norm_carries_empty_typed_defaults():
+    # A norm with none of the three cues is unchanged: empty defaults.
+    graph = DeonticIngester().ingest("Controller must notify.", {})
+
+    assert validate_subgraph(graph) == []
+    norm = _only_norm(graph)
+    assert norm["deadline"] == ""
+    assert norm["cross_references"] == []
+    assert norm["sanction"] == ""
