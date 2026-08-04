@@ -80,6 +80,14 @@ def test_deontic_ingester_persists_through_live_versum_sink(tmp_path):
     assert second["write"]["status"] == "unchanged"
     persisted = load_dimensioned_subgraphs(authorized / "store")
     assert len(persisted) == 1
-    relation = persisted[0].to_dict()["relations"][0]
-    assert relation["source"]["kind"] == "literal"
-    assert relation["properties"]["norm"].startswith("deontic:")
+    relations = persisted[0].to_dict()["relations"]
+    # Each norm projects across the fixed 5D, not a single operator edge:
+    # structural (part-of the action) and intentional (binds the bearer) are
+    # always emitted; causal/temporal/relational appear when the norm carries a
+    # condition, deadline, or cross-reference.
+    dims = {r["dimension"] for r in relations}
+    assert {"structural", "intentional"} <= dims
+    # the operator edge still carries a literal bearer as its source
+    assert any(r["source"]["kind"] == "literal" for r in relations)
+    # every emitted relation is attributed to its norm
+    assert all(r["properties"]["norm"].startswith("deontic:") for r in relations)
