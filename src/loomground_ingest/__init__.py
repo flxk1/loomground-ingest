@@ -31,6 +31,7 @@ from .writer import (
 )
 from .deontic import DeonticIngester
 from .governance import GovernanceIngester
+from .compose import enrich_subgraph, EnrichingWriter
 
 __all__ = [
     "ingest_text", "ingest_artifact", "DEFAULT_MAX_INPUT_CHARS",
@@ -39,5 +40,6 @@ __all__ = [
     "Writer", "CollectingWriter", "DimensionedSubgraphSink", "VersumWriter",
     "versum_writer", "VERSUM_SINK_CONTRACT", "VERSUM_RECEIPT_CONTRACT",
     "DeonticIngester", "GovernanceIngester", "validate_subgraph", "node_identity",
+    "enrich_subgraph", "EnrichingWriter",
     "ALLOWED_FACETS", "FEDERATION_EDGE_DIMENSIONS",
 ]

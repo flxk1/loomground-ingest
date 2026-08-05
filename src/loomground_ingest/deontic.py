@@ -130,6 +130,13 @@ _AUTHORISATION = re.compile(
 )
 _LEAD_DETERMINER = re.compile(r"^(?:a|an|the|its|their|any|this|of|in)\s+", re.I)
 
+# The bearer is the addressee NP head — a SHARED surface primitive owned by the
+# factual substrate (loomground-factual.clean_entity), consumed by deontic bearer
+# AND epistemic holder alike, so the vocabulary lives in exactly one place.
+# (Consolidated from the deontic slot cues once the rule-of-three was met:
+# bearer / holder / subject are the same NP-head.)
+from loomground_factual import clean_entity as _clean_bearer  # noqa: E402
+
 # The language OWNS the deadline / cross-reference / sanction vocabulary: it
 # publishes these cues in extraction.json so the FORMULA-FIELD population below
 # consumes them rather than a private second cue set. (The private _DEADLINE /
@@ -294,7 +301,7 @@ def _extract_slots(sentence: str) -> Optional[dict[str, str]]:
         m = pat.search(body)
         if not m:
             continue
-        subject = body[:m.start()].strip(" ,")
+        subject = _clean_bearer(body[:m.start()])
         action = body[m.end():].strip(" .")
         if not subject or not action:
             return None
