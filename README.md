@@ -30,10 +30,11 @@ Downstream, **solver** reasons over that model (genre, layout, tiers) and
 never reasons — it only builds the knowledge the other planes consume.
 
 The framework — the plane's currency and stages — is built and
-tested (`v0.1.1`); see [docs/contract.md](docs/contract.md). This package ships one
-built-in reference ingester (`deontic`, normative text → nD); hosts contribute the
-rest — rvnd's policy-text → nD governance ingester is the first host-contributed one,
-built and living in rvnd. The Versum consumer adapter is an injected, versioned sink
+tested (`v0.1.1`); see [docs/contract.md](docs/contract.md). This package ships two
+built-in reference ingesters: `deontic` (normative text → nD) and `governance`
+(policy text → nD governance subgraphs, `GovernanceIngester`), both self-contained
+on solver + governance; hosts contribute the rest and register the ingester set
+they want. The Versum consumer adapter is an injected, versioned sink
 boundary; Versum remains the owner of persistence.
 ## License
 
