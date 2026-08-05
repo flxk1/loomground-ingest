@@ -23,6 +23,15 @@ dependencies = [
     "loomground-governance>=0.8,<0.9",
 ]
 
+# Multi-language composition (enrich_subgraph / EnrichingWriter) is opt-in: the
+# base pipeline is pure-deontic. Its languages are OPTIONAL extras, so the base
+# package neither requires nor VCS-pins them until they are published.
+[project.optional-dependencies]
+compose = [
+    "loomground-factual>=0.1,<0.2",
+    "loomground-epistemic>=0.1,<0.2",
+]
+
 [project.urls]
 Homepage = "https://github.com/flxk1/loomground-ingest"
 Source = "https://github.com/flxk1/loomground-ingest"
