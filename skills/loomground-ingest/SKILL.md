@@ -1,6 +1,6 @@
 ---
 name: loomground-ingest
-description: Drive the Loomground ingest plane - turn an already-acquired artifact into a dimensioned subgraph headed for the Versum mental model. Dispatches to the host-registered ingester by grammar, reports the subgraph (nodes, edges, dimension, provenance, quarantine) as a dry run by default, and writes only through a real host-injected Versum sink after the RVND governance gate admits it. Invents nothing - missing context is recorded as incomplete, never as false. Triggers - "ingest this policy", "lower this policy into the graph", "run the ingest plane", "what would this artifact add to versum", "dry-run the ingest".
+description: Drive the Loomground ingest plane - turn a multimodal artifact into a dimensioned subgraph headed for the Versum mental model. Dispatches to the host-registered ingester by grammar, reports the subgraph (nodes, edges, dimension, provenance, quarantine) as a dry run by default, and writes only through a real host-injected Versum sink after the host's governance gate admits it. Invents nothing - missing context is recorded as incomplete, never as false. Triggers - "ingest this policy", "lower this policy into the graph", "run the ingest plane", "what would this artifact add to versum", "dry-run the ingest".
 ---
 
 # loomground-ingest — the ingest plane
@@ -16,14 +16,15 @@ UIs — this skill neither reasons nor renders.
 
 Which ingesters are registered and where output goes is **host configuration**,
 never hardcoded here (profile pattern: the skill body stays neutral; the host or
-config names the ingester set, the target graph, and the workspace). RVND
-registers its policy-text → nD ingester.
+config names the ingester set, the target graph, and the workspace). The host
+registers the ingester set it needs — including any of the built-in reference
+ingesters (deontic, governance/policy) — in its own registry.
 
 ## Step 1 — Dry-run first: artifact → subgraph, nothing written
 
 The current pipeline starts after acquisition and is
 `extract → dispatch → ingest → write`. URL acquisition and SSRF protection are
-RVND host responsibilities; this network-free package must not fetch URLs. Run it with the
+host responsibilities; this network-free package must not fetch URLs. Run it with the
 `CollectingWriter` so the write stage collects instead of persisting:
 
 ```python
@@ -36,7 +37,7 @@ writer = CollectingWriter()
 ingest_text(text, registry=registry, writer=writer)
 ```
 
-Report to the RVND host, from the collected subgraph(s):
+Report to the host, from the collected subgraph(s):
 - **Dimension** — which facet this occupies (5D mental model / nD governance).
 - **Nodes and edges** — counts and a readable sample; every element carries
   provenance back to the artifact.
@@ -48,7 +49,7 @@ Report to the RVND host, from the collected subgraph(s):
 ## Step 2 — Write only through a real writer after governance admission
 
 The Versum write verb is an injected seam. The library supplies the adapter;
-RVND supplies the authorized Versum sink:
+the host supplies the authorized Versum sink:
 
 ```python
 from loomground_ingest.writer import versum_writer
@@ -64,7 +65,7 @@ writer = versum_writer(
 - No writer → the dry-run report is the deliverable. Do not hand-write rows
   into Versum to compensate — Versum writes go
   through versum's own gated door (`knowledge.capture`), not around it.
-- Writer available → RVND evaluates the proposed upsert and supplies the writer
+- Writer available → the host evaluates the proposed upsert and supplies the writer
   only after its automated governance authority admits it. `humanConfirmation`
   is legacy-named declarative host metadata; this Python library never prompts
   for or enforces it. The pipeline refuses quarantined subgraphs before
