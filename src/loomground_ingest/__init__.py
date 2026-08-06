@@ -30,6 +30,13 @@ from .writer import (
     versum_writer,
 )
 from .deontic import DeonticIngester
+from .artifacts import (
+    ARTIFACT_CATALOGUE,
+    CATEGORIES,
+    ArtifactSpec,
+    RequiredArtifact,
+    extract_required_artifacts,
+)
 
 __all__ = [
     "ingest_text", "ingest_artifact", "DEFAULT_MAX_INPUT_CHARS",
@@ -39,4 +46,7 @@ __all__ = [
     "versum_writer", "VERSUM_SINK_CONTRACT", "VERSUM_RECEIPT_CONTRACT",
     "DeonticIngester", "validate_subgraph", "node_identity",
     "ALLOWED_FACETS", "FEDERATION_EDGE_DIMENSIONS",
+    # required-artifact catalogue (the compliance-artifact detection capability)
+    "extract_required_artifacts", "RequiredArtifact", "ArtifactSpec",
+    "ARTIFACT_CATALOGUE", "CATEGORIES",
 ]
