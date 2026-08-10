@@ -38,6 +38,22 @@ def test_bare_mention_without_obligation_scores_lower():
     assert hits["ropa"].confidence == 0.6
 
 
+def test_later_obligated_occurrence_outranks_earlier_bare_mention():
+    # The SAME trigger appears twice: first a bare mention, then — far enough
+    # away that the windows do not overlap — carrying the obligation cue. The
+    # highest-confidence hit must win, so the scan has to check EVERY occurrence,
+    # not just the first. (Regression: first-occurrence-only silently missed the
+    # real obligation — a false negative.)
+    filler = ("Neutral descriptive padding text kept long enough to separate "
+              "the two mentions cleanly and carrying no cue words. ") * 3
+    content = ("Records of processing are noted here in passing. "
+               + filler
+               + "The processor shall keep records of processing current.")
+    ropa = _by_key(extract_required_artifacts(content))["ropa"]
+    assert ropa.obligated is True
+    assert ropa.confidence == 0.9        # the later, obligated occurrence wins
+
+
 def test_german_trigger_matches():
     hits = _by_key(extract_required_artifacts(
         "Der Verantwortliche muss ein Verzeichnis von Verarbeitungstätigkeiten führen."))
