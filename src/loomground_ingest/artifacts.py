@@ -160,19 +160,28 @@ def extract_required_artifacts(content: str) -> list[RequiredArtifact]:
     found: dict[str, RequiredArtifact] = {}
     for spec in ARTIFACT_CATALOGUE:
         for trig in spec.triggers:
-            idx = low.find(trig)
-            if idx == -1:
-                continue
-            start = max(0, idx - _OBLIGATION_WINDOW)
-            end = min(len(content), idx + len(trig) + _OBLIGATION_WINDOW)
-            window = content[start:end]
-            obligated = bool(_OBLIGATION_CUE.search(window))
-            conf = _BASE_CONFIDENCE + (_OBLIGATION_BONUS if obligated else 0.0)
-            conf = round(min(1.0, conf), 3)
-            existing = found.get(spec.key)
-            if existing is None or conf > existing.confidence:
-                found[spec.key] = RequiredArtifact(
-                    key=spec.key, canonical=spec.canonical, category=spec.category,
-                    trigger_phrase=trig, obligated=obligated,
-                    snippet=window.strip()[:240], confidence=conf)
+            # Scan EVERY occurrence of the trigger, not just the first. The
+            # highest-confidence hit per artifact wins, so a later occurrence
+            # that carries the obligation cue ("shall maintain a *record of
+            # processing*") must be able to outrank an earlier bare mention —
+            # otherwise the real obligation is silently missed (false negative).
+            search_from = 0
+            while True:
+                idx = low.find(trig, search_from)
+                if idx == -1:
+                    break
+                search_from = idx + len(trig)
+                start = max(0, idx - _OBLIGATION_WINDOW)
+                end = min(len(content), idx + len(trig) + _OBLIGATION_WINDOW)
+                window = content[start:end]
+                obligated = bool(_OBLIGATION_CUE.search(window))
+                conf = _BASE_CONFIDENCE + (_OBLIGATION_BONUS if obligated else 0.0)
+                conf = round(min(1.0, conf), 3)
+                existing = found.get(spec.key)
+                if existing is None or conf > existing.confidence:
+                    found[spec.key] = RequiredArtifact(
+                        key=spec.key, canonical=spec.canonical,
+                        category=spec.category, trigger_phrase=trig,
+                        obligated=obligated, snippet=window.strip()[:240],
+                        confidence=conf)
     return list(found.values())
