@@ -28,6 +28,16 @@ _MODAL_CUES = [(re.compile(c["pattern"], re.I), c["modal"]) for c in _EX["modal_
 _NORMATIVE = re.compile("|".join(c["pattern"] for c in _EX["modal_cues"]), re.I)
 _COND = re.compile(_EX["slot_cues"]["condition_lead"], re.I)
 _EXC = re.compile(_EX["slot_cues"]["exception_lead"], re.I)
+# CONSTITUTIVE validity vocabulary (pack-published): a validity norm directs
+# no conduct — it denies (or fixes) legal effect. Effect → addressee incident
+# comes from the pack's validity_rules (void = the drafter's disability;
+# consequence shapes abstain). Not a fourth operator.
+_VALIDITY_CUES = [(re.compile(c["pattern"], re.I), c["effect"])
+                  for c in _EX.get("validity_cues", [])]
+_VALIDITY_RULES = {r["effect"]: r["incident"]
+                   for r in _EX.get("validity_rules", [])}
+_VALIDITY_PREDICATE = {"void": "invalidates", "preserved": "preserves",
+                       "substitution": "substitutes"}
 
 # Surface cues for the two axes a bare operator edge can't carry: a TEMPORAL
 # deadline and a RELATIONAL cross-reference to another provision. These read the
@@ -297,6 +307,17 @@ def _looks_normative(text: str) -> bool:
     return bool(_NORMATIVE.search(text or ""))
 
 
+def _validity_effects(text: str) -> list[str]:
+    """Effects of the pack's validity cues matching ``text`` (ordered, deduped)."""
+    return list(dict.fromkeys(
+        effect for pattern, effect in _VALIDITY_CUES if pattern.search(text or "")))
+
+
+def _claims_deontic(text: str) -> bool:
+    """The plane's claim surface: conduct modals OR constitutive validity."""
+    return _looks_normative(text) or bool(_validity_effects(text))
+
+
 def _extract_slots(sentence: str) -> Optional[dict[str, str]]:
     condition, exception, body = "", "", sentence
     m = _COND.match(body)
@@ -326,7 +347,7 @@ class DeonticIngester:
     id = "deontic"
 
     def grammar(self) -> Optional[Predicate]:
-        return _looks_normative
+        return _claims_deontic
 
     def ingest(self, text: str, ctx: Ctx) -> Subgraph:
         nodes: list[dict[str, Any]] = []
@@ -342,6 +363,7 @@ class DeonticIngester:
         )
         source_hash = hashlib.sha256(source_identity.encode("utf-8")).hexdigest()[:16]
         definitions = 0
+        validities = 0
         for sentence_index, sentence in enumerate(_sentences(text), start=1):
             definition = _extract_definition(sentence)
             if definition is not None:
@@ -362,6 +384,35 @@ class DeonticIngester:
                     "norm": did,
                 })
                 definitions += 1
+                continue
+            effects = _validity_effects(sentence)
+            if effects:
+                # A validity norm is CONSTITUTIVE — it denies (or fixes)
+                # legal effect — and takes precedence over the modal read so
+                # phrasing like "shall be null and void" is never mis-read
+                # as an obligation to be void. One node per effect; §306's
+                # preserved + substitution can share a sentence.
+                sent_hash = hashlib.sha256(
+                    sentence.encode("utf-8")).hexdigest()[:16]
+                for effect in effects:
+                    incident = _VALIDITY_RULES.get(effect, "")
+                    vid = (f"validity:{source_hash}:{sentence_index}:"
+                           f"{effect}:{sent_hash}")
+                    nodes.append({
+                        "id": vid, "kind": "validity", "effect": effect,
+                        "incident": incident,
+                        "correlative": (deontic.correlative(incident)
+                                        if incident else ""),
+                        "statement": sentence,
+                        "provenance": {"source_sentence": sentence},
+                    })
+                    edges.append({
+                        "subject": vid,
+                        "predicate": _VALIDITY_PREDICATE[effect],
+                        "object": effect, "dimension": "structural",
+                        "norm": vid,
+                    })
+                validities += len(effects)
                 continue
             if not _looks_normative(sentence):
                 continue
@@ -421,6 +472,7 @@ class DeonticIngester:
             provenance={"ingester": self.id, "language_version": deontic.language_version(),
                         "recognised": recognised, "lowered": len(formulae),
                         "rejected": len(rejections), "definitions": definitions,
+                        "validities": validities,
                         "conflicts": conflicts,
                         "actor": context.get("actor", "")},
         )
