@@ -478,6 +478,70 @@ def test_deontic_deadline_populates_typed_field_on_node_and_formula():
     assert formula.deadline == "30 days"
 
 
+def test_deontic_deadline_surface_records_action_anchored_span():
+    # The deadline's SURFACE — the full published-cue match — is recorded
+    # with exact offsets into the node's action, so a consumer can remove it
+    # span-exact instead of re-searching (which can over/under-remove).
+    graph = DeonticIngester().ingest(
+        "The provider shall notify the authority within 30 days.", {},
+    )
+
+    assert validate_subgraph(graph) == []
+    norm = _only_norm(graph)
+    surface = norm["deadline_surface"]
+    assert surface["text"] == "within 30 days"
+    assert norm["action"][surface["start"]:surface["end"]] == surface["text"]
+    # The typed VALUE field is unchanged by the surface recording.
+    assert norm["deadline"] == "30 days"
+
+
+def test_deontic_deadline_surface_is_cue_wide_not_clause_wide():
+    # The recorded surface is exactly as wide as the language's published
+    # cue — the language owns the vocabulary, the ingester never widens it.
+    # Here that means the feasibility qualifier and the reference-point tail
+    # around the cue stay in the action. When the deontic pack publishes a
+    # clause-level cue, THIS assertion is updated deliberately.
+    graph = DeonticIngester().ingest(
+        "The controller shall notify the supervisory authority without undue "
+        "delay and, where feasible, not later than 72 hours after having "
+        "become aware of it.", {},
+    )
+
+    assert validate_subgraph(graph) == []
+    norm = _only_norm(graph)
+    surface = norm["deadline_surface"]
+    assert surface["text"] == "not later than 72 hours"
+    assert norm["action"][surface["start"]:surface["end"]] == surface["text"]
+    assert "where feasible" in norm["action"]
+    assert "after having become aware" in norm["action"]
+
+
+def test_deontic_deadline_surface_records_german_cue():
+    graph = DeonticIngester().ingest(
+        "Der Anbieter muss die Behörde innerhalb von 30 Tagen "
+        "benachrichtigen.", {},
+    )
+
+    assert validate_subgraph(graph) == []
+    norm = _only_norm(graph)
+    surface = norm["deadline_surface"]
+    assert surface["text"] == "innerhalb von 30 Tagen"
+    assert norm["action"][surface["start"]:surface["end"]] == surface["text"]
+    assert norm["deadline"] == "30 Tagen"
+
+
+def test_deontic_deadline_surface_empty_when_no_deadline():
+    graph = DeonticIngester().ingest(
+        "The controller must delete the data in accordance with Article 17.",
+        {},
+    )
+
+    assert validate_subgraph(graph) == []
+    norm = _only_norm(graph)
+    assert norm["deadline_surface"] == {}
+    assert norm["deadline"] == ""
+
+
 def test_deontic_cross_references_populate_typed_list_on_node_and_formula():
     graph = DeonticIngester().ingest(
         "The controller must delete the data in accordance with Article 17.",

@@ -179,6 +179,23 @@ def _extract_deadline(text: str) -> str:
     return spans[0] if spans else ""
 
 
+def _deadline_surface(text: str) -> dict[str, Any]:
+    """The deadline's recorded surface in ``text``: the FULL published-cue
+    match with exact offsets (or ``{}`` when no cue matches).
+
+    ``deadline`` keeps the typed VALUE (the named group); this records WHERE
+    the surface sits, so a consumer that needs the deadline text removed can
+    anchor on the recorded span instead of re-searching persisted values —
+    a re-search can over/under-remove. The surface is exactly as wide as the
+    language's published cue, no wider: the language owns the vocabulary.
+    """
+    for pattern in _DEADLINE_CUES:
+        m = pattern.search(text or "")
+        if m:
+            return {"text": m.group(0), "start": m.start(0), "end": m.end(0)}
+    return {}
+
+
 def _extract_cross_references(text: str) -> list[str]:
     """Cross-references the norm cites via the pack's published cross-ref cues."""
     return _cue_spans(_XREF_CUES, text, ("ref",))
@@ -363,6 +380,10 @@ class DeonticIngester:
             # cues so the solver's norm_contract can consume typed
             # deadlines / cross-refs / sanctions. Read the norm's own text.
             deadline = _extract_deadline(slots["raw"])
+            # The surface span is anchored on the ACTION slot (the field a
+            # consumer would trim), not on raw: offsets index the persisted
+            # action string, and node["action"][start:end] == text holds.
+            deadline_surface = _deadline_surface(slots["action"])
             cross_references = _extract_cross_references(slots["raw"])
             sanction = _extract_sanction(slots["raw"])
             f = deontic.formula_from_fields(
@@ -386,7 +407,8 @@ class DeonticIngester:
                 "operator": f.operator, "bearer": f.bearer, "action": f.action,
                 "incident": f.incident, "correlative": deontic.correlative(f.incident),
                 "condition": f.condition, "exception": f.exception,
-                "deadline": deadline, "cross_references": cross_references,
+                "deadline": deadline, "deadline_surface": deadline_surface,
+                "cross_references": cross_references,
                 "sanction": sanction,
                 "provenance": {"source_sentence": slots["raw"]},
             })
