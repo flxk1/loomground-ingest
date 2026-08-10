@@ -495,12 +495,13 @@ def test_deontic_deadline_surface_records_action_anchored_span():
     assert norm["deadline"] == "30 days"
 
 
-def test_deontic_deadline_surface_is_cue_wide_not_clause_wide():
+def test_deontic_deadline_surface_is_clause_wide_via_published_cue():
     # The recorded surface is exactly as wide as the language's published
     # cue — the language owns the vocabulary, the ingester never widens it.
-    # Here that means the feasibility qualifier and the reference-point tail
-    # around the cue stay in the action. When the deontic pack publishes a
-    # clause-level cue, THIS assertion is updated deliberately.
+    # The pack now publishes CLAUSE-LEVEL deadline cues (this assertion's
+    # deliberate update), so the surface covers the connective, the
+    # feasibility qualifier, the cue, the value, and the reference-point
+    # tail — while the typed value stays just the value.
     graph = DeonticIngester().ingest(
         "The controller shall notify the supervisory authority without undue "
         "delay and, where feasible, not later than 72 hours after having "
@@ -510,10 +511,14 @@ def test_deontic_deadline_surface_is_cue_wide_not_clause_wide():
     assert validate_subgraph(graph) == []
     norm = _only_norm(graph)
     surface = norm["deadline_surface"]
-    assert surface["text"] == "not later than 72 hours"
+    assert surface["text"] == ("and, where feasible, not later than 72 hours "
+                               "after having become aware of it")
     assert norm["action"][surface["start"]:surface["end"]] == surface["text"]
-    assert "where feasible" in norm["action"]
-    assert "after having become aware" in norm["action"]
+    assert norm["deadline"] == "72 hours"
+    # Removing the recorded surface leaves the nameable, rider-retained act.
+    trimmed = (norm["action"][:surface["start"]]
+               + norm["action"][surface["end"]:]).strip(" ,.;")
+    assert trimmed == "notify the supervisory authority without undue delay"
 
 
 def test_deontic_deadline_surface_records_german_cue():
@@ -540,6 +545,61 @@ def test_deontic_deadline_surface_empty_when_no_deadline():
     norm = _only_norm(graph)
     assert norm["deadline_surface"] == {}
     assert norm["deadline"] == ""
+
+
+def _validity_nodes(graph):
+    return [n for n in graph.nodes if n["kind"] == "validity"]
+
+
+def test_validity_void_lowers_de_blacklist_sentence():
+    # §309-style predicate-first word order; a CONSTITUTIVE validity norm —
+    # effect + incident from the pack's validity_rules, no conduct norm.
+    graph = DeonticIngester().ingest(
+        "In allgemeinen Geschäftsbedingungen ist unwirksam eine Bestimmung, "
+        "durch die der Verwender die Beweislast zum Nachteil des anderen "
+        "Vertragsteils ändert.", {},
+    )
+
+    assert validate_subgraph(graph) == []
+    (node,) = _validity_nodes(graph)
+    assert node["effect"] == "void"
+    assert node["incident"] == "disability"
+    assert node["correlative"] == "immunity"
+    assert not [n for n in graph.nodes if n["kind"] == "norm"]
+    assert graph.provenance["validities"] == 1
+
+
+def test_validity_para306_preserved_and_substitution():
+    # §306's two clauses split on the semicolon; consequence shapes abstain
+    # from an addressee incident instead of faking one.
+    graph = DeonticIngester().ingest(
+        "Bei Unwirksamkeit bleibt der Vertrag im Übrigen wirksam; an die "
+        "Stelle der unwirksamen Klausel treten die gesetzlichen "
+        "Vorschriften.", {},
+    )
+
+    assert validate_subgraph(graph) == []
+    effects = sorted(n["effect"] for n in _validity_nodes(graph))
+    assert effects == ["preserved", "substitution"]
+    assert all(n["incident"] == "" for n in _validity_nodes(graph))
+
+
+def test_validity_takes_precedence_over_modal_misread():
+    # "shall be null and void" contains "shall": without precedence the
+    # modal grammar would lower a false O(be null and void) obligation.
+    graph = DeonticIngester().ingest("The waiver shall be null and void.", {})
+
+    assert validate_subgraph(graph) == []
+    (node,) = _validity_nodes(graph)
+    assert node["effect"] == "void"
+    assert not [n for n in graph.nodes if n["kind"] == "norm"]
+
+
+def test_validity_prose_is_claimed_at_dispatch():
+    claims = DeonticIngester().grammar()
+    assert claims("Bestimmungen in allgemeinen Geschäftsbedingungen sind "
+                  "unwirksam, wenn sie unangemessen benachteiligen.")
+    assert not claims("Der Himmel über Berlin ist blau.")
 
 
 def test_deontic_cross_references_populate_typed_list_on_node_and_formula():
