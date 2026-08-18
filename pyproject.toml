@@ -19,7 +19,7 @@ authors = [{ name = "Loomground Contributors" }]
 # policy grammar/vocabulary). Host-specific ingesters still live in their hosts.
 dependencies = [
     "loomground-deontic>=0.1,<0.2",
-    "loomground-solver>=0.2,<0.3",
+    "loomground-solver>=0.2,<0.6",
     "loomground-governance>=0.8,<0.9",
 ]
 
