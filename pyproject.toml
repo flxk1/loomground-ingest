@@ -20,7 +20,7 @@ authors = [{ name = "Loomground Contributors" }]
 dependencies = [
     "loomground-deontic>=0.1,<0.2",
     "loomground-solver>=0.2,<0.6",
-    "loomground-governance>=0.8,<0.9",
+    "loomground-governance>=0.8,<0.12",
 ]
 
 # Multi-language composition (enrich_subgraph / EnrichingWriter) is opt-in: the
