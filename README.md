@@ -37,4 +37,4 @@ built and living in rvnd. The Versum consumer adapter is an injected, versioned 
 boundary; Versum remains the owner of persistence.
 ## License
 
-Apache License 2.0. See `LICENSE`, `LICENSES/Apache-2.0.txt`, and `NOTICE`.
+Apache License 2.0. See `LICENSES/Apache-2.0.txt` and `NOTICE`.

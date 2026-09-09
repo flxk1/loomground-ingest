@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "loomground-ingest"
-version = "0.1.1"
+dynamic = ["version"]
 description = "The ingest plane of the Loomground workflow: multimodal input → a dimensioned subgraph in Versum (5D knowledge, nD governance)."
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -26,4 +26,8 @@ where = ["src"]
 include = ["loomground_ingest*"]
 
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.setuptools.dynamic]
+version = { attr = "loomground_ingest._version.__version__" }
