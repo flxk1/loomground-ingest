@@ -1,40 +1,62 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 flxk1 -->
-
 # loomground-ingest
 
-The ingest plane of the Loomground designer workflow: **multimodal input → the
-versum mental model.**
+Deterministic normalization and evidence packaging: lowers a host-acquired artifact to a dimensioned subgraph envelope for loomground-versum.
 
-In the current execution path, ingest begins only after a host has acquired the
-artifact. URL acquisition and SSRF defenses remain RVND-owned. This package is
-network-free: it accepts text or a host-supplied extractor and does not fetch
-URLs.
+## Install
 
-```
-multimodal input  →  [loomground-ingest]  →  versum (5D + nD)  ⟷  solver
-                                                     │
-                                          [loomground-builder]  →  the tool/UI
+```bash
+pip install -r requirements-dev.txt   # pinned loomground-deontic
+pip install .
 ```
 
-Ingest performs the *translation of functions*: it reads any input a tool
-declares itself through — a manual, a function list, docs, a live
-machine-readable surface (image and audio extraction are host-supplied and
-still forthcoming) — and writes the tool's mental model into **versum** as
-Federation-5D relations (structural · causal · intentional · temporal ·
-relational) plus typed nD context, provenance-stamped. It invents nothing;
-missing context is recorded as incomplete, never as false.
+## Usage
 
-Downstream, **solver** reasons over that model (genre, layout, tiers) and
-**loomground-builder** renders the fitting working UI. Ingest never renders and
-never reasons — it only builds the knowledge the other planes consume.
+```python
+from loomground_ingest import (CollectingWriter, DeonticIngester,
+                               IngesterRegistry, ingest_text)
 
-The framework — the plane's currency and stages — is built and
-tested (`v0.1.1`); see [docs/contract.md](docs/contract.md). This package ships one
-built-in reference ingester (`deontic`, normative text → nD); hosts contribute the
-rest — rvnd's policy-text → nD governance ingester is the first host-contributed one,
-built and living in rvnd. The Versum consumer adapter is an injected, versioned sink
-boundary; Versum remains the owner of persistence.
+registry = IngesterRegistry()
+registry.register(DeonticIngester())
+report = ingest_text(text, registry=registry, writer=CollectingWriter())
+# {'ok': True, 'ingester': 'deontic', 'dimension': 'nD', 'status': 'complete',
+#  'nodes': 1, 'edges': 4, 'rejections': 0, 'quarantined': False, 'write': {...}}
+```
+
+Persistent writes go through `versum_writer(sink, idempotency_key=…, source=…, evidence=…, nd=…)`; the host injects `sink`.
+
+## Interface
+
+| Element | Definition |
+| --- | --- |
+| Input | `ingest_text(text, *, registry, writer, ctx=None, max_input_chars=1_000_000)` · `ingest_artifact(artifact, *, extract, …)` with a host-supplied `extract(artifact) -> str` |
+| Ingester | `grammar() -> Predicate \| None` (None = best-guess fallback) · `ingest(text, ctx) -> Subgraph` |
+| `Subgraph` | nodes, edges, provenance, `dimension` (`5D` \| `nD`), per-unit `rejections`, `quarantined`; status `complete` \| `partial` \| `quarantined` |
+| 5D edge dimensions | structural · causal · intentional · temporal · relational |
+| Writer | `write(Subgraph) -> dict` · `CollectingWriter` (dry run) · `VersumWriter` emits `loomground.versum.dimensioned-subgraph/v1` to an injected `DimensionedSubgraphSink.upsert(envelope)` and checks the `…-receipt/v1` receipt |
+| Refusals | `no_ingester` · `input_too_large` · `no_text_extracted` · quarantined subgraph · `validate_subgraph` errors; each fails closed before a write |
+| Built-in ingester | `deontic`: normative text → nD norm nodes (operator, bearer, action, Hohfeld incident, condition, exception, provenance) |
+| Network | none; acquisition and URL fetching are host-side |
+
+Full contract: [docs/contract.md](docs/contract.md).
+
+## Family
+
+Deterministic normalization and evidence packaging; inputs and Versum-ready outputs defined.
+
+- consumes: [loomground-deontic](https://github.com/flxk1/loomground-deontic) `>=0.1,<0.2` (extraction cues, O/P/F classification)
+- consumed by: [loomground-versum](https://github.com/flxk1/loomground-versum) (`versum.ingestion.DimensionedSubgraphSink`) · RVND (host policy ingester)
+- pipeline: `source → loomground-ingest → loomground-versum → loomground-solver → applied or diagnostic planes`
+
+Place in the workflow: [docs/overview.md](docs/overview.md).
+
+## Status
+
+- version 0.2.0 · sink contract `dimensioned-subgraph/v1`
+- 55 tests passed, 1 skipped (`python -m pytest -q`)
+- python >=3.10 · 1 skill (`skills/loomground-ingest`)
+
 ## License
 
-Apache License 2.0. See `LICENSES/Apache-2.0.txt` and `NOTICE`.
+Apache-2.0 — `LICENSES/Apache-2.0.txt`, `NOTICE`.
