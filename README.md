@@ -4,6 +4,10 @@
 
 Deterministic normalization and evidence packaging: lowers a host-acquired artifact to a dimensioned subgraph envelope for loomground-versum.
 
+## Problem
+
+Documents, manuals and tool surfaces reach the graph as unstructured text with no record of what was skipped. Deterministic lowering to a subgraph with provenance, rejections and quarantine.
+
 ## Install
 
 ```bash
@@ -20,11 +24,17 @@ from loomground_ingest import (CollectingWriter, DeonticIngester,
 registry = IngesterRegistry()
 registry.register(DeonticIngester())
 report = ingest_text(text, registry=registry, writer=CollectingWriter())
-# {'ok': True, 'ingester': 'deontic', 'dimension': 'nD', 'status': 'complete',
-#  'nodes': 1, 'edges': 4, 'rejections': 0, 'quarantined': False, 'write': {...}}
 ```
 
 Persistent writes go through `versum_writer(sink, idempotency_key=…, source=…, evidence=…, nd=…)`; the host injects `sink`.
+
+## Example
+
+```
+in : text = "The operator must delete personal data within 30 days after the contract ends. The operator must not transfer personal data outside the EU. The operator may retain invoices."
+     ingest_text(text, registry=registry, writer=CollectingWriter())
+out: {'ok': True, 'processed': True, 'ingester': 'deontic', 'dimension': 'nD', 'status': 'complete', 'quarantined': False, 'rejections': 0, 'nodes': 3, 'edges': 10, 'write': {'written': True, 'dimension': 'nD', 'status': 'complete', 'nodes': 3, 'edges': 10, 'rejections': 0}}
+```
 
 ## Interface
 
