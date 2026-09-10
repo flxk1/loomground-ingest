@@ -12,10 +12,25 @@ requires-python = ">=3.10"
 license = "Apache-2.0"
 license-files = ["LICENSE", "LICENSES/Apache-2.0.txt", "NOTICE"]
 authors = [{ name = "Loomground Contributors" }]
-# The built-in reference ingester consumes the deontic language pack, the same
-# way solver's reference adapter consumes governance. Host-specific ingesters
-# still live in their hosts.
-dependencies = ["loomground-deontic>=0.1,<0.2"]
+# The built-in reference ingesters consume the language packs the same way
+# solver's reference adapter consumes governance: the deontic ingester consumes
+# loomground-deontic; the governance compiler consumes loomground-solver (for
+# validate/parse/project/to_netlist) and loomground-governance (the authoritative
+# policy grammar/vocabulary); bearer cleaning consumes loomground-factual's
+# clean_entity (the shared NP-head primitive). Host-specific ingesters still
+# live in their hosts.
+dependencies = [
+    "loomground-deontic>=0.1,<0.2",
+    "loomground-solver>=0.2,<0.6",
+    "loomground-governance>=0.8,<0.12",
+    "loomground-factual>=0.1,<0.2",
+]
+
+# Multi-language composition (enrich_subgraph / EnrichingWriter) is opt-in: the
+# base pipeline stays pure-deontic, so the epistemic language is an OPTIONAL
+# extra the base package neither requires nor VCS-pins.
+[project.optional-dependencies]
+compose = ["loomground-epistemic>=0.1,<0.2"]
 
 [project.urls]
 Homepage = "https://github.com/flxk1/loomground-ingest"
