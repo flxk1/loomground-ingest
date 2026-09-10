@@ -1,6 +1,6 @@
 ---
 name: loomground-ingest
-description: Drive the Loomground ingest plane - turn a multimodal artifact into a dimensioned subgraph headed for the Versum mental model. Dispatches to the host-registered ingester by grammar, reports the subgraph (nodes, edges, dimension, provenance, quarantine) as a dry run by default, and writes only through a real host-injected Versum sink after the host's governance gate admits it. Invents nothing - missing context is recorded as incomplete, never as false. Triggers - "ingest this policy", "lower this policy into the graph", "run the ingest plane", "what would this artifact add to versum", "dry-run the ingest".
+description: Drive the Loomground ingest plane - turn a multimodal artifact into a dimensioned subgraph headed for the Versum mental model. Dispatches to the host-registered ingester by grammar, reports the subgraph (nodes, edges, dimension, provenance, quarantine) as a dry run by default, and writes only through a real host-injected Versum sink after the host's governance gate admits it. Invents nothing - missing context is recorded as incomplete, never as false. Use when the user wants to lower a policy or other artifact into the Versum graph, preview what it would add, or run the ingest plane as a dry run. Triggers - "ingest this policy", "lower this policy into the graph", "run the ingest plane", "what would this artifact add to versum", "dry-run the ingest".
 ---
 
 # loomground-ingest — the ingest plane
