@@ -30,6 +30,15 @@ from .writer import (
     versum_writer,
 )
 from .deontic import DeonticIngester
+from .governance import GovernanceIngester
+from .compose import enrich_subgraph, EnrichingWriter
+from .artifacts import (
+    ARTIFACT_CATALOGUE,
+    CATEGORIES,
+    ArtifactSpec,
+    RequiredArtifact,
+    extract_required_artifacts,
+)
 
 __all__ = [
     "ingest_text", "ingest_artifact", "DEFAULT_MAX_INPUT_CHARS",
@@ -37,6 +46,10 @@ __all__ = [
     "Ingester", "Subgraph", "Predicate", "Ctx",
     "Writer", "CollectingWriter", "DimensionedSubgraphSink", "VersumWriter",
     "versum_writer", "VERSUM_SINK_CONTRACT", "VERSUM_RECEIPT_CONTRACT",
-    "DeonticIngester", "validate_subgraph", "node_identity",
+    "DeonticIngester", "GovernanceIngester", "validate_subgraph", "node_identity",
+    "enrich_subgraph", "EnrichingWriter",
     "ALLOWED_FACETS", "FEDERATION_EDGE_DIMENSIONS",
+    # required-artifact catalogue (the compliance-artifact detection capability)
+    "extract_required_artifacts", "RequiredArtifact", "ArtifactSpec",
+    "ARTIFACT_CATALOGUE", "CATEGORIES",
 ]

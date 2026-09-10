@@ -5,6 +5,14 @@
 # Immutable release commit for loomground-deontic (validity cues +
 # clause-level deadline surface, on top of typed carry fields).
 loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@f53b2434098ff2cb846c60e1ae75038cc4f8ea51
+# Immutable release commits for the governance compiler's siblings: solver
+# supplies validate/parse/project/to_netlist, governance supplies the policy
+# grammar/vocabulary (0.11.0). Pinned to commits reachable on their public main.
+loomground-solver @ git+https://github.com/flxk1/loomground-solver@351608303311c4016fcd5439ad23e5b4cbeb6226
+loomground-governance @ git+https://github.com/flxk1/loomground-governance@cf09ad8336c0ef47e700952896314472129fa4c7
+# The deontic ingester's bearer cleaning consumes the factual substrate's
+# clean_entity (one NP-head primitive for bearer / holder / subject).
+loomground-factual @ git+https://github.com/flxk1/loomground-factual@f02001d767d62ce9d6b7c2ebabbeaee171914cb9
 pytest==9.1.1
 # tomllib backport for Python < 3.11 (the release gate reads pyproject.toml).
 tomli==2.2.1 ; python_version < "3.11"
