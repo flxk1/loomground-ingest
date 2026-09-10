@@ -1,6 +1,7 @@
 ---
 name: loomground-ingest
 description: Drive the Loomground ingest plane - turn a multimodal artifact into a dimensioned subgraph headed for the Versum mental model. Dispatches to the host-registered ingester by grammar, reports the subgraph (nodes, edges, dimension, provenance, quarantine) as a dry run by default, and writes only through a real host-injected Versum sink after the host's governance gate admits it. Invents nothing - missing context is recorded as incomplete, never as false. Use when the user wants to lower a policy or other artifact into the Versum graph, preview what it would add, or run the ingest plane as a dry run. Triggers - "ingest this policy", "lower this policy into the graph", "run the ingest plane", "what would this artifact add to versum", "dry-run the ingest".
+allowed-tools: ingest_text
 ---
 
 # loomground-ingest — the ingest plane
@@ -24,8 +25,16 @@ ingesters (deontic, governance/policy) — in its own registry.
 
 The current pipeline starts after acquisition and is
 `extract → dispatch → ingest → write`. URL acquisition and SSRF protection are
-host responsibilities; this network-free package must not fetch URLs. Run it with the
-`CollectingWriter` so the write stage collects instead of persisting:
+host responsibilities; this network-free package must not fetch URLs.
+
+Primary path: call `ingest_text` with
+`{"text": "<the artifact text>", "ingesters": ["deontic", "policy"], "max_input_chars": 1000000}`
+(`ingesters` optional — omitted routes through every built-in; nothing is
+written) — it returns the nodes, edges, rejections, quarantined, and the
+subgraphs; `unavailable` means no ingester claimed the text.
+
+Shell fallback — run it with the `CollectingWriter` so the write stage collects
+instead of persisting:
 
 ```python
 from loomground_ingest import ingest_text  # or ingest_artifact with an extractor

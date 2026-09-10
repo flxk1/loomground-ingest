@@ -12,5 +12,11 @@
     "mental-model",
     "subgraph",
     "provenance"
-  ]
+  ],
+  "mcpServers": {
+    "loomground": {
+      "command": "loomground-mcp",
+      "args": ["serve", "--transport", "stdio"]
+    }
+  }
 }
