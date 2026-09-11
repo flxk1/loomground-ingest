@@ -473,8 +473,9 @@ def test_deontic_deadline_populates_typed_field_on_node_and_formula():
     assert norm["sanction"] == ""
     # The same value round-trips onto the deontic formula the language builds.
     formula = deontic.formula_from_fields(
-        norm["operator"], norm["bearer"], norm["action"],
+        deontic.name(norm["operator"]), norm["bearer"], norm["action"],
         deadline=norm["deadline"])
+    assert formula.operator == norm["operator"]
     assert formula.deadline == "30 days"
 
 
@@ -614,8 +615,9 @@ def test_deontic_cross_references_populate_typed_list_on_node_and_formula():
     assert norm["deadline"] == ""
     assert norm["sanction"] == ""
     formula = deontic.formula_from_fields(
-        norm["operator"], norm["bearer"], norm["action"],
+        deontic.name(norm["operator"]), norm["bearer"], norm["action"],
         cross_references=norm["cross_references"])
+    assert formula.operator == norm["operator"]
     assert formula.cross_references == ["Article 17"]
 
 
@@ -632,9 +634,36 @@ def test_deontic_sanction_populates_typed_field_on_node_and_formula():
     assert norm["deadline"] == ""
     assert norm["cross_references"] == []
     formula = deontic.formula_from_fields(
-        norm["operator"], norm["bearer"], norm["action"],
+        deontic.name(norm["operator"]), norm["bearer"], norm["action"],
         sanction=norm["sanction"])
+    assert formula.operator == norm["operator"]
     assert formula.sanction == norm["sanction"]
+
+
+def test_deontic_uncatalogued_modal_is_a_unit_rejection(monkeypatch):
+    # deontic >=0.2 fails closed on a modal class it does not catalogue. The
+    # plane keeps that closed at the UNIT: the sentence lands as a rejection
+    # with its own reason, and the rest of the document still lowers.
+    import re
+    from loomground_ingest import deontic as plane
+    monkeypatch.setattr(plane, "_MODAL_CUES", [
+        (re.compile(r"\bought to\b", re.I), "exhortation"),
+        *plane._MODAL_CUES,
+    ])
+    monkeypatch.setattr(plane, "_NORMATIVE", re.compile(
+        r"\bought to\b|" + plane._NORMATIVE.pattern, re.I))
+    graph = DeonticIngester().ingest(
+        "Controller ought to notify. Processor must delete the data.", {})
+
+    assert validate_subgraph(graph) == []
+    assert [n["operator"] for n in graph.nodes if n["kind"] == "norm"] == ["O"]
+    assert graph.rejections == [{
+        "sentence_index": 1,
+        "text": "Controller ought to notify",
+        "reason": "unrecognised_modal",
+    }]
+    assert graph.provenance["recognised"] == (
+        graph.provenance["lowered"] + graph.provenance["rejected"])
 
 
 def test_deontic_plain_norm_carries_empty_typed_defaults():
