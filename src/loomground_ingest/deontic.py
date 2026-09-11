@@ -444,12 +444,24 @@ class DeonticIngester:
             deadline_surface = _deadline_surface(slots["action"])
             cross_references = _extract_cross_references(slots["raw"])
             sanction = _extract_sanction(slots["raw"])
-            f = deontic.formula_from_fields(
-                slots["modal"], slots["subject"], slots["action"],
-                condition=slots["condition"], exception=slots["exception"],
-                incident=incident, deadline=deadline,
-                cross_references=cross_references, sanction=sanction,
-                raw_sentence=slots["raw"])
+            try:
+                f = deontic.formula_from_fields(
+                    slots["modal"], slots["subject"], slots["action"],
+                    condition=slots["condition"], exception=slots["exception"],
+                    incident=incident, deadline=deadline,
+                    cross_references=cross_references, sanction=sanction,
+                    raw_sentence=slots["raw"])
+            except ValueError:
+                # deontic >=0.2 fails closed on a modal class it does not
+                # catalogue instead of reading it as a duty. Keep that
+                # closed at the unit: the sentence is a rejection, the rest
+                # of the document still lowers.
+                rejections.append({
+                    "sentence_index": sentence_index,
+                    "text": sentence,
+                    "reason": "unrecognised_modal",
+                })
+                continue
             if not deontic.validate(f)["ok"]:
                 rejections.append({
                     "sentence_index": sentence_index,

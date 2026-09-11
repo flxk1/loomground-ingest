@@ -2,18 +2,17 @@
 # pyproject.toml. Kept out of package metadata so the built distribution stays
 # index-clean. Install this before `pip install .` so the range is already
 # satisfied and pip never needs an index for the sibling package.
-# loomground-deontic is NOT at a release tag: this plane needs the validity cues +
-# clause-level deadline surface that landed after deontic-v0.1.4 (five tests fail
-# against 0.1.4), while loomground-deontic-v0.2.0 fails closed on the short modal
-# codes this plane emits (three tests fail against 0.2.0). Public-main commit,
-# version 0.1.3, inside the <0.2 range; move to a tag once a release admits both.
-loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@f53b2434098ff2cb846c60e1ae75038cc4f8ea51
-# Release tag commits for the governance compiler's siblings: solver supplies
-# validate/parse/project/to_netlist (solver-v0.5.0), governance supplies the
-# policy grammar/vocabulary (loomground-governance-v0.8.4 — solver 0.5.0 caps
-# governance <0.9, so 0.8.4 is the newest release pip accepts next to it).
-loomground-solver @ git+https://github.com/flxk1/loomground-solver@afe2fa0be7089163735bdd73b20bbb3464ade25d
-loomground-governance @ git+https://github.com/flxk1/loomground-governance@efa508860c50e51e1d75ce0f863a0bd6958c90a0
+# Release tag commits for every first-party sibling. loomground-deontic-v0.2.1 is
+# the first RELEASE that carries the validity cues + clause-level deadline
+# surface this plane consumes (no 0.1.x tag does) and it fails closed on an
+# unrecognised modal — this plane hands formula_from_fields the language's own
+# modal class names, so the strict form is what it already emits.
+loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@35f8eabdc533b275a086b20c8d7a161f4acc46a8
+# solver supplies validate/parse/project/to_netlist (solver-v0.6.0, admits
+# governance <0.12 and deontic <0.3); governance supplies the policy
+# grammar/vocabulary (loomground-governance-v0.11.1).
+loomground-solver @ git+https://github.com/flxk1/loomground-solver@5b72f71ebd1f732b4e713b51de15d3ac565faa96
+loomground-governance @ git+https://github.com/flxk1/loomground-governance@270e11d0bbded46c810b2fe56559323d6dcd969a
 # The deontic ingester's bearer cleaning consumes the factual substrate's
 # clean_entity (one NP-head primitive for bearer / holder / subject); factual-v0.1.0.
 loomground-factual @ git+https://github.com/flxk1/loomground-factual@db60a0592eb7741732944f05279b27def0c9685b
