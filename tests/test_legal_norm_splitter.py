@@ -4,9 +4,9 @@
 units, each anchored to its instrument with its article pinpoint.
 
 The fixture is real GDPR operative text (a handful of articles) so the test
-exercises actual legal drafting, not synthetic sentences. (The per-article
-placement tests that drove RuleRegistry remain in the RVND host, which owns that
-registry; the splitter itself is dependency-free and is proven here.)
+exercises actual legal drafting, not synthetic sentences. Per-article placement
+belongs to a host registry; the splitter itself is dependency-free and is proven
+here.
 """
 
 from __future__ import annotations

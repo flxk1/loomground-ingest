@@ -7,8 +7,8 @@ Text moved verbatim from the README (2026-09-09); the README keeps the interface
 The ingest plane of the Loomground designer workflow: **multimodal input → the
 versum mental model.**
 
-In the current execution path, ingest begins only after a host has acquired the
-artifact. URL acquisition and SSRF defenses remain RVND-owned. This package is
+Ingest begins only after a host has acquired the artifact. URL acquisition and
+SSRF defenses remain host-owned. This package is
 network-free: it accepts text or a host-supplied extractor and does not fetch
 URLs.
 
@@ -32,7 +32,7 @@ never reasons — it only builds the knowledge the other planes consume.
 
 The framework — the plane's currency and stages — is built and
 tested (`v0.1.1`); see [docs/contract.md](contract.md). This package ships one
-built-in reference ingester (`deontic`, normative text → nD); hosts contribute the
-rest — rvnd's policy-text → nD governance ingester is the first host-contributed one,
-built and living in rvnd. The Versum consumer adapter is an injected, versioned sink
-boundary; Versum remains the owner of persistence.
+built-in deontic ingester (normative text → nD) and a policy-text → nD
+governance ingester. Hosts may contribute additional ingesters. The Versum
+consumer adapter is an injected, versioned sink boundary; Versum remains the
+owner of persistence.

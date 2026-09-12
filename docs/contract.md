@@ -10,9 +10,9 @@ otherwise), the ingester lowers it to a subgraph, and the writer upserts that
 subgraph into versum. The plane invents nothing; missing context is recorded as
 incomplete, never as false.
 
-For the current execution path, URL acquisition and its SSRF controls are owned
-by RVND. This package performs no network access and does not accept a URL as an
-instruction to fetch; its boundary begins after acquisition.
+URL acquisition and its SSRF controls belong to the consuming host. This package
+performs no network access and does not accept a URL as an instruction to fetch;
+its boundary begins after acquisition.
 
 ## The pipeline
 
@@ -54,8 +54,8 @@ dimension, so the ingester chooses the facet rather than a separate sink.
 
 The plugin manifest's legacy-named `humanConfirmation` field is a declarative
 requirement on the host. The library does not prompt for or enforce
-confirmation. RVND satisfies the requirement through its automated governance
-authority before supplying a persistent writer. Quarantine and structural
+confirmation. A consuming host must satisfy that requirement before supplying a
+persistent writer. Quarantine and structural
 validation are library-enforced independently of that host gate.
 
 The framework owns no *domain-specific* ingester and no extractor itself: a host
@@ -76,11 +76,10 @@ its own instead.
   (causal for O/F, intentional for P). A norm-bearing sentence it cannot lower is
   retained as a structured rejection while independently validated sentences can
   land. Document-level ambiguity is quarantined; missing slots are never guessed.
-- **Policy text → nD governance** *(built; the instance lives in rvnd).* Wraps
-  rvnd's policy mapper: it lowers a policy's Loomground projection (nodes and
-  cords) into an nD subgraph and quarantines a court judgment, which interprets
-  norms rather than enacting them. rvnd contributes this ingester and wires its
-  format-aware extractor as the input role, consuming this package.
+- **Policy text → nD governance** *(built into this package).* Lowers a policy's
+  Loomground projection (nodes and cords) into an nD subgraph and quarantines a
+  court judgment, which interprets norms rather than enacting them. A consuming
+  host may wire a format-aware extractor into the input role.
 
 ## The Versum write boundary
 
@@ -110,6 +109,5 @@ The path remains post-acquisition and performs no network access.
 
 ## Status
 
-Framework built and tested standalone (`v0.1.1`). The policy ingester is built
-and lives in rvnd, which depends on this package. The Ingestor → Versum
+Framework and policy ingester built and tested standalone. The Ingestor → Versum
 consumer adapter is built; the host supplies Versum's live sink implementation.

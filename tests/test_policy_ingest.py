@@ -3,8 +3,8 @@
 """Golden fixture for deterministic policy text to digital twin.
 
 The tests cover cue extraction, classification, patch validation, netlist
-round-tripping, no-write ingest behavior, and residual backstops. (The MCP
-facade/surface test stays in the RVND host, which owns that operator surface.)
+round-tripping, no-write ingest behavior, and residual backstops. Host facade
+tests stay with the host that owns the operator surface.
 """
 from __future__ import annotations
 

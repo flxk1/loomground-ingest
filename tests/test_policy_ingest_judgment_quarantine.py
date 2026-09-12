@@ -3,10 +3,10 @@
 """Genre routing in front of the governance compiler: court judgments are quarantined
 (routed to the interpreter, no governance patch), while genuine policies compile normally.
 
-The RVND-hosted variants of these tests read real decisions/frameworks from a local corpus
-via the host's PDF extractors; those stay in RVND. Here the judgment is a synthetic fixture
-carrying the co-occurring decision-structure markers the neutral engine fingerprints, so the
-quarantine path is proven without any host-only dependency.
+Host integration tests may read real decisions and frameworks from a local
+corpus through format-aware extractors. Here the judgment is a synthetic fixture
+carrying the co-occurring decision-structure markers the neutral engine
+fingerprints, so the quarantine path is proven without a host dependency.
 """
 from __future__ import annotations
 

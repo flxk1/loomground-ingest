@@ -191,7 +191,7 @@ def test_literal_endpoints_and_residual_edge_properties_are_preserved():
     assert relation["relation_id"].startswith("relation:1:")
 
 
-def test_rvnd_policy_projection_shape_maps_without_semantic_rewrite():
+def test_host_policy_projection_shape_maps_without_semantic_rewrite():
     sink = _Sink()
     graph = Subgraph(
         dimension="5D",

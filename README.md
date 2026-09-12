@@ -6,12 +6,12 @@ Deterministic normalization and evidence packaging: lowers a host-acquired artif
 
 ## Problem
 
-Documents, manuals and tool surfaces reach the graph as unstructured text with no record of what was skipped. Deterministic lowering to a subgraph with provenance, rejections and quarantine.
+Unstructured input needs deterministic lowering with provenance, explicit rejections and quarantine.
 
 ## Install
 
 ```bash
-pip install -r requirements-dev.txt   # pinned loomground-deontic / -solver / -governance / -factual
+pip install -r requirements-dev.txt
 pip install .
 ```
 
@@ -26,7 +26,7 @@ registry.register(DeonticIngester())
 report = ingest_text(text, registry=registry, writer=CollectingWriter())
 ```
 
-Persistent writes go through `versum_writer(sink, idempotency_key=…, source=…, evidence=…, nd=…)`; the host injects `sink`.
+For persistent writes, the host injects `sink` into `versum_writer(…)`.
 
 ## Example
 
@@ -40,13 +40,13 @@ out: {'ok': True, 'processed': True, 'ingester': 'deontic', 'dimension': 'nD', '
 
 | Element | Definition |
 | --- | --- |
-| Input | `ingest_text(text, *, registry, writer, ctx=None, max_input_chars=1_000_000)` · `ingest_artifact(artifact, *, extract, …)` with a host-supplied `extract(artifact) -> str` |
+| Input | `ingest_text(…)` · `ingest_artifact(…)` with a host-supplied extractor |
 | Ingester | `grammar() -> Predicate \| None` (None = best-guess fallback) · `ingest(text, ctx) -> Subgraph` |
-| `Subgraph` | nodes, edges, provenance, `dimension` (`5D` \| `nD`), per-unit `rejections`, `quarantined`; status `complete` \| `partial` \| `quarantined` |
+| `Subgraph` | nodes, edges, provenance, dimension, rejections, quarantine and status |
 | 5D edge dimensions | structural · causal · intentional · temporal · relational |
-| Writer | `write(Subgraph) -> dict` · `CollectingWriter` (dry run) · `VersumWriter` emits `loomground.versum.dimensioned-subgraph/v1` to an injected `DimensionedSubgraphSink.upsert(envelope)` and checks the `…-receipt/v1` receipt |
-| Refusals | `no_ingester` · `input_too_large` · `no_text_extracted` · quarantined subgraph · `validate_subgraph` errors; each fails closed before a write |
-| Built-in ingesters | `deontic`: normative text → nD norm nodes (operator, bearer, action, Hohfeld incident, condition, exception, provenance) · `policy` (`GovernanceIngester`): policy text → classified, validated `.lg` twin → nD governance subgraph |
+| Writer | `CollectingWriter` (dry run) · `VersumWriter` emits versioned envelopes to an injected sink and checks receipts |
+| Refusals | missing ingester/text · oversized input · quarantine · validation errors; all fail before write |
+| Built-ins | `deontic`: normative text → nD norms · `policy`: validated `.lg` twin → nD governance |
 | Extras | `compose`: `enrich_subgraph` / `EnrichingWriter` union factual + epistemic facets onto the deontic subgraph (opt-in, needs loomground-epistemic) |
 | Network | none; acquisition and URL fetching are host-side |
 
@@ -57,7 +57,7 @@ Full contract: [docs/contract.md](docs/contract.md).
 Deterministic normalization and evidence packaging; inputs and Versum-ready outputs defined.
 
 - consumes: [loomground-deontic](https://github.com/flxk1/loomground-deontic) `>=0.2,<0.3` (extraction cues, O/P/F classification) · [loomground-solver](https://github.com/flxk1/loomground-solver) `>=0.2,<0.7` (validate / parse / project / to_netlist) · [loomground-governance](https://github.com/flxk1/loomground-governance) `>=0.8,<0.12` (policy grammar and vocabulary) · [loomground-factual](https://github.com/flxk1/loomground-factual) `>=0.1,<0.2` (`clean_entity` bearer NP-head)
-- consumed by: [loomground-versum](https://github.com/flxk1/loomground-versum) (`versum.ingestion.DimensionedSubgraphSink`) · RVND (host; consumes the governance compiler)
+- consumed by: [loomground-versum](https://github.com/flxk1/loomground-versum) (`versum.ingestion.DimensionedSubgraphSink`) and host applications through the public compiler API
 - pipeline: `source → loomground-ingest → loomground-versum → loomground-solver → applied or diagnostic planes`
 
 Place in the workflow: [docs/overview.md](docs/overview.md).
