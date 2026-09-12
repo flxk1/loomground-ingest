@@ -38,7 +38,7 @@ Versioning while the project is pre-1.0.
 
 - A live, host-injected Versum dimensioned-subgraph write seam with versioned,
   contained, idempotent receipts.
-- Built-in Deontic ingestion and RVND Policy integration coverage.
+- Built-in Deontic ingestion and policy-compiler integration coverage.
 
 ### Changed
 

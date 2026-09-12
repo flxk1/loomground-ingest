@@ -13,7 +13,7 @@ correct primitive ('share_candidate_photo') — but only through two fail-closed
   * WELL-FORMED + Loomground-validated like every other primitive.
 So this proves: (1) LLM off is unchanged/deterministic; (2) LLM on recovers what cues miss;
 (3) an ungrounded proposal is refused even with the LLM on. The built-in local-model route
-stays a host concern (RVND); this package exposes only the injection seam.
+stays a host concern; this package exposes only the injection seam.
 """
 from __future__ import annotations
 
