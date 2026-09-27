@@ -56,7 +56,7 @@ Full contract: [docs/contract.md](docs/contract.md).
 
 Deterministic normalization and evidence packaging; inputs and Versum-ready outputs defined.
 
-- consumes: [loomground-deontic](https://github.com/flxk1/loomground-deontic) `>=0.2,<0.3` (extraction cues, O/P/F classification) · [loomground-solver](https://github.com/flxk1/loomground-solver) `>=0.2,<0.7` (validate / parse / project / to_netlist) · [loomground-governance](https://github.com/flxk1/loomground-governance) `>=0.8,<0.12` (policy grammar and vocabulary) · [loomground-factual](https://github.com/flxk1/loomground-factual) `>=0.1,<0.2` (`clean_entity` bearer NP-head)
+- consumes: [loomground-deontic](https://github.com/flxk1/loomground-deontic) `0.2.1` (extraction cues, O/P/F classification) · [loomground-solver](https://github.com/flxk1/loomground-solver) `0.6.0` (validate / parse / project / to_netlist) · [loomground-governance](https://github.com/flxk1/loomground-governance) `0.11.1` (policy grammar and vocabulary) · [loomground-factual](https://github.com/flxk1/loomground-factual) `0.1.0` (`clean_entity` bearer NP-head)
 - consumed by: [loomground-versum](https://github.com/flxk1/loomground-versum) (`versum.ingestion.DimensionedSubgraphSink`) and host applications through the public compiler API
 - pipeline: `source → loomground-ingest → loomground-versum → loomground-solver → applied or diagnostic planes`
 
@@ -64,9 +64,13 @@ Place in the workflow: [docs/overview.md](docs/overview.md).
 
 ## Status
 
-- version 0.2.0 · sink contract `dimensioned-subgraph/v1`
-- 118 tests passed, 1 skipped (`python -m pytest -q`)
+- version 0.3.0 · sink contract `dimensioned-subgraph/v1`
+- 119 tests passed, 1 skipped (`python -m pytest -q`, with the `compose` extra)
 - python >=3.10 · 1 skill (`skills/loomground-ingest`)
+
+## How this is made
+
+The code and documentation are written with Loomground agents. The maintainer reads and corrects all of it.
 
 ## License
 

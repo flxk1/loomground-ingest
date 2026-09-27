@@ -31,7 +31,7 @@ Downstream, **solver** reasons over that model (genre, layout, tiers) and
 never reasons — it only builds the knowledge the other planes consume.
 
 The framework — the plane's currency and stages — is built and
-tested (`v0.1.1`); see [docs/contract.md](contract.md). This package ships one
+tested (`v0.3.0`); see [docs/contract.md](contract.md). This package ships one
 built-in deontic ingester (normative text → nD) and a policy-text → nD
 governance ingester. Hosts may contribute additional ingesters. The Versum
 consumer adapter is an injected, versioned sink boundary; Versum remains the
