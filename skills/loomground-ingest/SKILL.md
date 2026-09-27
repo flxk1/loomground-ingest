@@ -2,6 +2,27 @@
 name: loomground-ingest
 description: Drive the Loomground ingest plane - turn a multimodal artifact into a dimensioned subgraph headed for the Versum mental model. Dispatches to the host-registered ingester by grammar, reports the subgraph (nodes, edges, dimension, provenance, quarantine) as a dry run by default, and writes only through a real host-injected Versum sink after the host's governance gate admits it. Invents nothing - missing context is recorded as incomplete, never as false. Use when the user wants to lower a policy or other artifact into the Versum graph, preview what it would add, or run the ingest plane as a dry run. Triggers - "ingest this policy", "lower this policy into the graph", "run the ingest plane", "what would this artifact add to versum", "dry-run the ingest".
 allowed-tools: ingest_text
+governance:
+  grade: L1
+  actions:
+    - { kind: dry_run_ingest, risk: low }
+    - { kind: write_versum, risk: high }
+  prohibited:
+    - fetch_url
+    - bypass_versum_gate
+    - hand_write_versum_rows
+    - force_write_of_quarantined_subgraph
+    - fabricate_missing_context
+    - treat_llm_enrichment_as_source_of_truth
+  obligations:
+    - dry_run_by_default
+    - missing_context_recorded_as_incomplete
+    - quarantine_checked_before_any_write
+    - verified_on_the_graph_not_the_run_output
+  redress:
+    - { kind: write_versum, by: workspace_owner, overturn: true }
+  budget: { usd: 1, iters: 30 }
+  on-boundary: dry-run-then-host-gate
 ---
 
 # loomground-ingest — the ingest plane
@@ -79,6 +100,8 @@ writer = versum_writer(
   is legacy-named declarative host metadata; this Python library never prompts
   for or enforces it. The pipeline refuses quarantined subgraphs before
   invoking any writer — do not strip the flag to force one through.
+- What a write lands in Versum is a candidate layer that grounds nothing until
+  a curator confirms it; that confirmation, not the write, is the human step.
 
 ## Step 3 — Verify on the graph, not on the run's own output
 
