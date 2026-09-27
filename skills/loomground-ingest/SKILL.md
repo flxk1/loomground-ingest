@@ -6,9 +6,7 @@ governance:
   grade: L1
   actions:
     - { kind: dry_run_ingest, risk: low }
-    - { kind: write_versum, risk: high, grade: L2 }
-  reserved:
-    - { kind: write_versum, by: workspace_owner }
+    - { kind: write_versum, risk: high }
   prohibited:
     - fetch_url
     - bypass_versum_gate
@@ -102,6 +100,8 @@ writer = versum_writer(
   is legacy-named declarative host metadata; this Python library never prompts
   for or enforces it. The pipeline refuses quarantined subgraphs before
   invoking any writer — do not strip the flag to force one through.
+- What a write lands in Versum is a candidate layer that grounds nothing until
+  a curator confirms it; that confirmation, not the write, is the human step.
 
 ## Step 3 — Verify on the graph, not on the run's own output
 
