@@ -46,7 +46,10 @@ def validate_subgraph(graph: Subgraph) -> list[str]:
         if not isinstance(edge, dict):
             errors.append("malformed edge")
             continue
-        if edge.get("dimension") not in ALLOWED_EDGE_DIMENSIONS:
+        # A deontic operator edge (O/P/F) is ought, not is: no 5D dimension.
+        if edge.get("dimension") is None and edge.get("predicate") in {"O", "P", "F"}:
+            pass
+        elif edge.get("dimension") not in ALLOWED_EDGE_DIMENSIONS:
             errors.append("invalid edge dimension")
         if edge.get("norm") not in node_ids:
             errors.append("dangling norm edge")
@@ -144,7 +147,7 @@ def main() -> None:
     assert validate_subgraph(graph) == []
     assertions += 1
     # 5D projection: each norm fans across the fixed dimensions (structural
-    # "concerns" + intentional "binds" + the operator affinity, plus a causal
+    # "concerns" + intentional "binds" + the dimensionless operator edge, plus a causal
     # edge per condition/exception) — not one edge per norm.
     assert len(graph.nodes) == 2
     dims = {edge["dimension"] for edge in graph.edges}
