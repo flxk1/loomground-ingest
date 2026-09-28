@@ -2,20 +2,21 @@
 # pyproject.toml. Kept out of package metadata so the built distribution stays
 # index-clean. Install this before `pip install .` so the range is already
 # satisfied and pip never needs an index for the sibling package.
-# Release tag commits for every first-party sibling. loomground-deontic-v0.2.1 is
-# the first RELEASE that carries the validity cues + clause-level deadline
+# Pinned commits for every first-party sibling. deontic is pinned past
+# loomground-deontic-v0.2.1 at the merge where operator edges carry no 5D
+# dimension; v0.2.1 is the first release that carries the validity cues + clause-level deadline
 # surface this plane consumes (no 0.1.x tag does) and it fails closed on an
 # unrecognised modal — this plane hands formula_from_fields the language's own
 # modal class names, so the strict form is what it already emits.
-loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@319e218500da42dea693830ff790343aa340bd60
+loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@4c01e0390767917333db99b6355842eb34745563
 # solver supplies validate/parse/project/to_netlist (solver-v0.6.0, admits
 # governance <0.12 and deontic <0.3); governance supplies the policy
 # grammar/vocabulary (loomground-governance-v0.11.1).
 loomground-solver @ git+https://github.com/flxk1/loomground-solver@2cdf037882e3d867faa7e47e8f6b71a4dee0e38d
-loomground-governance @ git+https://github.com/flxk1/loomground-governance@82c7613e4a2247218a7281dd99933ed7c9e31218
+loomground-governance @ git+https://github.com/flxk1/loomground-governance@3eed4cab3cba2a288fcac3671171cd4fa7e5bc18
 # The deontic ingester's bearer cleaning consumes the factual substrate's
 # clean_entity (one NP-head primitive for bearer / holder / subject); factual-v0.1.0.
-loomground-factual @ git+https://github.com/flxk1/loomground-factual@db60a0592eb7741732944f05279b27def0c9685b
+loomground-factual @ git+https://github.com/flxk1/loomground-factual@4f3043dcd64f1cde4e30f790a76afe80058ab4dc
 pytest==9.1.1
 # tomllib backport for Python < 3.11 (the release gate reads pyproject.toml).
 tomli==2.2.1 ; python_version < "3.11"

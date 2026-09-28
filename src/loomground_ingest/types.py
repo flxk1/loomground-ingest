@@ -17,6 +17,9 @@ FEDERATION_EDGE_DIMENSIONS = frozenset({
     "structural", "causal", "intentional", "temporal", "relational",
 })
 
+# Deontic operators: their edges are normative (nD-only) and carry no 5D dimension.
+OPERATOR_PREDICATES = frozenset({"O", "P", "F"})
+
 #: A grammar predicate: does this text belong to an ingester? ``None`` from an
 #: ingester's ``grammar()`` marks it best-guess-only (matched by fallback).
 Predicate = Callable[[str], bool]
@@ -100,7 +103,11 @@ def validate_subgraph(subgraph: Subgraph) -> list[str]:
         if not isinstance(edge, dict):
             errors.append("malformed edge")
             continue
-        if edge.get("dimension") not in FEDERATION_EDGE_DIMENSIONS:
+        # A deontic operator edge (bearer -O/P/F-> action) is ought, not is: it
+        # carries no 5D dimension. Every other edge must name one.
+        if edge.get("dimension") is None and edge.get("predicate") in OPERATOR_PREDICATES:
+            pass
+        elif edge.get("dimension") not in FEDERATION_EDGE_DIMENSIONS:
             errors.append("invalid edge dimension")
         if "norm" in edge and edge["norm"] not in known_ids:
             errors.append("dangling norm edge")

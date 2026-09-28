@@ -42,7 +42,7 @@ _VALIDITY_PREDICATE = {"void": "invalidates", "preserved": "preserves",
 # Surface cues for the two axes a bare operator edge can't carry: a TEMPORAL
 # deadline and a RELATIONAL cross-reference to another provision. These read the
 # norm's own text — the same "how" role as the modal/slot cues — so each norm
-# lands on more than the single operator-affinity dimension.
+# lands on these axes as well as its structural and intentional edges.
 _DEADLINE = re.compile(
     r"\b(?:within|no later than|not later than|at the latest(?: within)?)\s+\d+\s+"
     r"(?:hour|day|week|month|year)s?\b"
@@ -260,13 +260,13 @@ def _extract_definition(sentence: str) -> Optional[dict[str, str]]:
 
 
 def _norm_edges(nid: str, f: Any, raw: str) -> list[dict[str, Any]]:
-    """Project one norm across the fixed 5D, not just the operator's affinity.
+    """Project one norm across the fixed 5D; the operator edge itself carries none.
 
     STRUCTURAL — the norm is built around its action (part-of).
-    CAUSAL     — the operator (O/F) governs, the condition triggers, the
-                 exception defeats.
-    INTENTIONAL— the norm binds its bearer (the addressee it exists for; also
-                 where a permission/right's affinity lands).
+    CAUSAL     — the condition triggers, the exception defeats.
+    INTENTIONAL— the norm binds its bearer (the addressee it exists for).
+    The operator edge (bearer -O/P/F-> action) is ought, not is: its
+    dimension is None (deontic.dimension_affinity), and it stays nD-only.
     TEMPORAL   — a deadline stated in the norm's text.
     RELATIONAL — cross-references to other provisions (and the always-true floor).
     """
