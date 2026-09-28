@@ -5,6 +5,15 @@
 All notable release changes are documented here. Versions follow Semantic
 Versioning while the project is pre-1.0.
 
+## [0.3.1](https://github.com/flxk1/loomground-ingest/compare/loomground-ingest-v0.3.0...loomground-ingest-v0.3.1) (2026-09-28)
+
+
+### Documentation
+
+* correct stale claims; add How this is made ([dd9f7f9](https://github.com/flxk1/loomground-ingest/commit/dd9f7f964f50184a7b47555912d0790cbe4389b5))
+* correct version, test count and pins; add How this is made ([7c1c762](https://github.com/flxk1/loomground-ingest/commit/7c1c762dfe541402c371c53376be30ab8f6f70f4))
+* How this is made names no model vendor ([d7c61e4](https://github.com/flxk1/loomground-ingest/commit/d7c61e42a516a30a85bf0bfd0d9bca7a7ac4b0eb))
+
 ## [0.3.0](https://github.com/flxk1/loomground-ingest/compare/loomground-ingest-v0.2.0...loomground-ingest-v0.3.0) (2026-09-11)
 
 
