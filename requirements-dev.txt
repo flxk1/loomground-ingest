@@ -8,15 +8,15 @@
 # surface this plane consumes (no 0.1.x tag does) and it fails closed on an
 # unrecognised modal — this plane hands formula_from_fields the language's own
 # modal class names, so the strict form is what it already emits.
-loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@4c01e0390767917333db99b6355842eb34745563
+loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@0f57e8d2c02f288169d76e3ec93714b0d3f00ea2
 # solver supplies validate/parse/project/to_netlist (solver-v0.6.0, admits
 # governance <0.12 and deontic <0.3); governance supplies the policy
 # grammar/vocabulary (loomground-governance-v0.11.1).
 loomground-solver @ git+https://github.com/flxk1/loomground-solver@2cdf037882e3d867faa7e47e8f6b71a4dee0e38d
-loomground-governance @ git+https://github.com/flxk1/loomground-governance@3eed4cab3cba2a288fcac3671171cd4fa7e5bc18
+loomground-governance @ git+https://github.com/flxk1/loomground-governance@ff2afcde03131859d21fc7195697e799aa65a9be
 # The deontic ingester's bearer cleaning consumes the factual substrate's
 # clean_entity (one NP-head primitive for bearer / holder / subject); factual-v0.1.0.
-loomground-factual @ git+https://github.com/flxk1/loomground-factual@4f3043dcd64f1cde4e30f790a76afe80058ab4dc
+loomground-factual @ git+https://github.com/flxk1/loomground-factual@ebf9fe19d518dde0aad08962632d95f9d97ee31c
 pytest==9.1.1
 # tomllib backport for Python < 3.11 (the release gate reads pyproject.toml).
 tomli==2.2.1 ; python_version < "3.11"
