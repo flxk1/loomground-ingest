@@ -24,10 +24,10 @@ authors = [{ name = "Loomground Contributors" }]
 # transitive closure is declared, because those tagged commits still carry ranges that
 # only these URLs can satisfy.
 dependencies = [
-    "loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@loomground-deontic-v0.2.1",
+    "loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@4c01e0390767917333db99b6355842eb34745563",
     "loomground-solver @ git+https://github.com/flxk1/loomground-solver@solver-v0.6.0",
-    "loomground-governance @ git+https://github.com/flxk1/loomground-governance@loomground-governance-v0.11.1",
-    "loomground-factual @ git+https://github.com/flxk1/loomground-factual@factual-v0.1.0",
+    "loomground-governance @ git+https://github.com/flxk1/loomground-governance@3eed4cab3cba2a288fcac3671171cd4fa7e5bc18",
+    "loomground-factual @ git+https://github.com/flxk1/loomground-factual@4f3043dcd64f1cde4e30f790a76afe80058ab4dc",
 ]
 
 # Multi-language composition (enrich_subgraph / EnrichingWriter) is opt-in: the
@@ -35,7 +35,7 @@ dependencies = [
 # extra the base package does not install by default.
 [project.optional-dependencies]
 compose = [
-    "loomground-epistemic @ git+https://github.com/flxk1/loomground-epistemic@epistemic-v0.1.0",
+    "loomground-epistemic @ git+https://github.com/flxk1/loomground-epistemic@f4f293dd7d8a17e28d4ad710565dee234cf9234a",
 ]
 
 [project.urls]
