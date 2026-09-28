@@ -25,7 +25,7 @@ authors = [{ name = "Loomground Contributors" }]
 # only these URLs can satisfy.
 dependencies = [
     "loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@4c01e0390767917333db99b6355842eb34745563",
-    "loomground-solver @ git+https://github.com/flxk1/loomground-solver@solver-v0.6.0",
+    "loomground-solver @ git+https://github.com/flxk1/loomground-solver@2cdf037882e3d867faa7e47e8f6b71a4dee0e38d",
     "loomground-governance @ git+https://github.com/flxk1/loomground-governance@3eed4cab3cba2a288fcac3671171cd4fa7e5bc18",
     "loomground-factual @ git+https://github.com/flxk1/loomground-factual@4f3043dcd64f1cde4e30f790a76afe80058ab4dc",
 ]
