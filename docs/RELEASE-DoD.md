@@ -14,7 +14,7 @@ python -m tests.release_gate --bare
 - The package imports through its public API on every supported Python version.
 - Dispatch is deterministic: grammar matches precede the single fallback.
 - Every produced subgraph declares `5D` or `nD`, provenance, nodes, and edges.
-- Every edge uses a Federation dimension; deontic `norm` references resolve to
+- Every edge uses a 5D dimension; deontic `norm` references resolve to
   a unique emitted node.
 - Outcomes are exactly `complete`, `partial`, or `quarantined`.
 - `partial` carries structured rejections; it is never silently incomplete.

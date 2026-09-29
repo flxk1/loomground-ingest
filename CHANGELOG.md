@@ -5,6 +5,17 @@
 All notable release changes are documented here. Versions follow Semantic
 Versioning while the project is pre-1.0.
 
+## Unreleased
+
+### Changed
+
+* **naming:** renamed the "federation"/"Federation-5D" identifiers and prose mentions to
+  neutral 5D names; a deprecated alias is kept for one release, warning with
+  `DeprecationWarning` and returning the identical object: `FEDERATION_EDGE_DIMENSIONS` is
+  now `EDGE_DIMENSIONS_5D` (importable from both `loomground_ingest` and
+  `loomground_ingest.types`). The fixture/example system id `system:federation-5d` is
+  renamed to `system:5d`.
+
 ## [0.3.1](https://github.com/flxk1/loomground-ingest/compare/loomground-ingest-v0.3.0...loomground-ingest-v0.3.1) (2026-09-28)
 
 
