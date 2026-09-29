@@ -9,16 +9,31 @@ upserts any dimension; the ingester chooses the facet, not a separate sink.
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional, Protocol, runtime_checkable
 
 ALLOWED_FACETS = frozenset({"5D", "nD"})
-FEDERATION_EDGE_DIMENSIONS = frozenset({
+EDGE_DIMENSIONS_5D = frozenset({
     "structural", "causal", "intentional", "temporal", "relational",
 })
 
 # Deontic operators: their edges are normative (nD-only) and carry no 5D dimension.
 OPERATOR_PREDICATES = frozenset({"O", "P", "F"})
+
+
+def __getattr__(name: str) -> Any:
+    # ``FEDERATION_EDGE_DIMENSIONS`` stays importable as a deprecated alias for
+    # ``EDGE_DIMENSIONS_5D``: same object, so no behavior diverges between them.
+    if name == "FEDERATION_EDGE_DIMENSIONS":
+        warnings.warn(
+            "'FEDERATION_EDGE_DIMENSIONS' is deprecated and will be removed in a "
+            "future release; use 'EDGE_DIMENSIONS_5D' instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return EDGE_DIMENSIONS_5D
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 #: A grammar predicate: does this text belong to an ingester? ``None`` from an
 #: ingester's ``grammar()`` marks it best-guess-only (matched by fallback).
@@ -107,7 +122,7 @@ def validate_subgraph(subgraph: Subgraph) -> list[str]:
         # carries no 5D dimension. Every other edge must name one.
         if edge.get("dimension") is None and edge.get("predicate") in OPERATOR_PREDICATES:
             pass
-        elif edge.get("dimension") not in FEDERATION_EDGE_DIMENSIONS:
+        elif edge.get("dimension") not in EDGE_DIMENSIONS_5D:
             errors.append("invalid edge dimension")
         if "norm" in edge and edge["norm"] not in known_ids:
             errors.append("dangling norm edge")

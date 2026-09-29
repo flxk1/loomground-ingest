@@ -27,7 +27,7 @@ artifact ──► extract ──► dispatch ──► ingest ──► write
 ## One store, many dimensions
 
 Versum is the one graph store; a dimension selects the facet. **5D** carries the
-tool's mental model as Federation relations — structural, causal, intentional,
+tool's mental model as 5D relations — structural, causal, intentional,
 temporal, relational. **nD** carries governance. An ingester tags its subgraph's
 nodes and edges with the dimension they occupy; one writer upserts any
 dimension, so the ingester chooses the facet rather than a separate sink.

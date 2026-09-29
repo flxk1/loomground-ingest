@@ -22,7 +22,7 @@ Ingest performs the *translation of functions*: it reads any input a tool
 declares itself through — a manual, a function list, docs, a live
 machine-readable surface (image and audio extraction are host-supplied and
 still forthcoming) — and writes the tool's mental model into **versum** as
-Federation-5D relations (structural · causal · intentional · temporal ·
+the 5D dimensions (structural · causal · intentional · temporal ·
 relational) plus typed nD context, provenance-stamped. It invents nothing;
 missing context is recorded as incomplete, never as false.
 

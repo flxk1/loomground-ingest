@@ -80,7 +80,7 @@ def _writer(sink):
         }],
         nd={
             "facet": "5D",
-            "system_id": "system:federation-5d",
+            "system_id": "system:5d",
             "dimension_count": 1,
             "axes": ["relational"],
         },
@@ -108,7 +108,7 @@ def test_pipeline_hands_exact_versioned_envelope_to_injected_sink():
         }],
         "nd": {
             "facet": "5D",
-            "system_id": "system:federation-5d",
+            "system_id": "system:5d",
             "dimension_count": 1,
             "axes": ["relational"],
         },
@@ -263,7 +263,7 @@ def test_envelope_is_detached_from_caller_owned_values():
         evidence=evidence,
         nd={
             "facet": "5D",
-            "system_id": "system:federation-5d",
+            "system_id": "system:5d",
             "dimension_count": 1,
             "axes": ["relational"],
         },
