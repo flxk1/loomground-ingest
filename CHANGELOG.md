@@ -5,7 +5,7 @@
 All notable release changes are documented here. Versions follow Semantic
 Versioning while the project is pre-1.0.
 
-## Unreleased
+## 0.3.2 (2026-09-29)
 
 ### Changed
 

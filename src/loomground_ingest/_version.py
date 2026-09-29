@@ -2,4 +2,4 @@
 # Copyright 2026 flxk1
 """Single version source; ``pyproject.toml`` resolves ``[project].version`` here."""
 
-__version__ = "0.3.1"  # x-release-please-version
+__version__ = "0.3.2"  # x-release-please-version
