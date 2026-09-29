@@ -53,9 +53,10 @@ def test_deontic_ingester_persists_through_live_versum_sink(tmp_path):
         nd={
             "facet": "nD",
             "system_id": "system:deontic",
-            "dimension_count": 5,
+            "dimension_count": 6,
             "axes": [
                 "structural", "causal", "intentional", "temporal", "relational",
+                "operator",
             ],
         },
     )

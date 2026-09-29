@@ -19,7 +19,7 @@ import json
 import re
 from typing import Any, Mapping, Protocol, runtime_checkable
 
-from .types import Subgraph, node_identity, validate_subgraph
+from .types import OPERATOR_PREDICATES, Subgraph, node_identity, validate_subgraph
 
 VERSUM_SINK_CONTRACT = "loomground.versum.dimensioned-subgraph/v1"
 VERSUM_RECEIPT_CONTRACT = "loomground.versum.dimensioned-subgraph-receipt/v1"
@@ -55,6 +55,17 @@ class CollectingWriter:
                 "status": subgraph.status,
                 "nodes": len(subgraph.nodes), "edges": len(subgraph.edges),
                 "rejections": len(subgraph.rejections)}
+
+
+# A deontic operator edge carries no 5D dimension (ought is not is); in the nD
+# envelope it lies on the deontic system's own operator axis.
+OPERATOR_AXIS = "operator"
+
+
+def _envelope_axis(edge: Mapping[str, Any]) -> Any:
+    if edge.get("dimension") is None and edge.get("predicate") in OPERATOR_PREDICATES:
+        return OPERATOR_AXIS
+    return edge.get("dimension")
 
 
 class VersumWriter:
@@ -141,7 +152,7 @@ class VersumWriter:
                     "kind": "node" if target_value in node_ids else "literal",
                     "value": target_value,
                 },
-                "dimension": edge.get("dimension"),
+                "dimension": _envelope_axis(edge),
                 "evidence_ids": deepcopy(
                     edge.get("evidence_ids", evidence_ids)
                 ),

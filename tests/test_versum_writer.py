@@ -275,3 +275,12 @@ def test_envelope_is_detached_from_caller_owned_values():
 
     assert sink.envelopes[0]["evidence"][0]["locator"] == "artifact:1"
     assert sink.envelopes[0]["nodes"][0]["properties"]["text"] == "before"
+
+
+def test_operator_edge_lies_on_the_operator_axis_in_the_envelope():
+    from loomground_ingest.writer import OPERATOR_AXIS, _envelope_axis
+
+    assert _envelope_axis({"predicate": "O", "dimension": None}) == OPERATOR_AXIS
+    assert _envelope_axis({"predicate": "F", "dimension": None}) == "operator"
+    assert _envelope_axis({"predicate": "concerns", "dimension": "structural"}) == "structural"
+    assert _envelope_axis({"predicate": "concerns", "dimension": None}) is None
